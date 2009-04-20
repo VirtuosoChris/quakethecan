@@ -253,6 +253,10 @@ double  distSP = (sp->getSceneNode()->getPosition() - agt.getSceneNode()->getPos
 
 void Pursue::Exit(Agent & agt){
 	agt.defendTime = 0;
+
+	
+	((irr::scene::IAnimatedMeshSceneNode*)agt.getSceneNode())->setMD2Animation(scene::EMAT_RUN);
+	((irr::scene::IAnimatedMeshSceneNode*)agt.getSceneNode())->setLoopMode(true);
 	//cout << "Exiting Persue state.\n";
 	agt.flavorText->setText(stringw("I'm IT!").c_str());
 }
@@ -287,6 +291,7 @@ Hide* Hide::GetInstance(){
 void Hide::Enter(Agent & agt){
 
 	agt.flavorText->setText(stringw(" ").c_str());
+
 
 
 	cout << "Entering Hide state.\n";

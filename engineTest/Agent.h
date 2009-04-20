@@ -80,6 +80,8 @@ bool isFiring;
 
 	irr::scene::IBillboardTextSceneNode* flavorText;
 
+	virtual void setPlayerType(GamePlayer_Type T);
+
 
 GamePlayer* getSpottedAgent();
 std::list<irr::core::vector3df> generateDefenseArc(double startAngle, double endAngle, double radius, double nodeCount);

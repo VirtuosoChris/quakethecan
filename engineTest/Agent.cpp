@@ -57,6 +57,14 @@ GamePlayer* Agent::getSpottedAgent(){
 
 }
 
+void Agent::setPlayerType(GamePlayer_Type T) {
+	type = T;
+	if(T == PREDATOR)
+this->GetFSM()->ChangeState(Patrol::GetInstance());
+else
+this->GetFSM()->ChangeState(Hide::GetInstance());
+}
+
 
 
 std::list<irr::core::vector3df> Agent::generateDefenseArc(double startAngle, double endAngle, double radius, double nodeCount){
@@ -143,11 +151,11 @@ bool Agent::spotted(Agent* agt){
 
 void Agent::setSpeed(){
 	if(type == PREY){
-		MAXSPEED = .3f;
+		MAXSPEED = .15f;
 		ACCELRATE = MAXSPEED/4;
 	}
 	else{
-		MAXSPEED = .15f;
+		MAXSPEED = .1f;
 		ACCELRATE = MAXSPEED/4;
 	}
 }

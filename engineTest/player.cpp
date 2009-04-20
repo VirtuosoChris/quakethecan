@@ -15,16 +15,20 @@ void player::gunInit(){
 	}
 }
 
+void player::setPlayerType(GamePlayer_Type T){
+type = T;
+}
+
 void player::setSpeed(){
 	player::gunInit();
 	core::list<ISceneNodeAnimator*>::ConstIterator anims=camera->getAnimators().begin(); 
 	ISceneNodeAnimatorCameraFPS *anim=(ISceneNodeAnimatorCameraFPS*)*anims;
 	if(type == PREY){
-		MAXSPEED = .3f;
+		MAXSPEED = .15f;
 		anim->setMoveSpeed(MAXSPEED);
 	}
 	else{
-		MAXSPEED = .15f;
+		MAXSPEED = .1f;
 		anim->setMoveSpeed(MAXSPEED);
 	}
 

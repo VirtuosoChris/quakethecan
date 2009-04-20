@@ -28,6 +28,8 @@ private:
 	StateMachine<player> * PlayerStateMachine;
 
 public:
+
+	virtual void setPlayerType(GamePlayer_Type T);
 	virtual void setSpeed();
 
 	void gunInit();

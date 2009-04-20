@@ -59,7 +59,7 @@ GamePlayer* getIt(){return IT;}
 
 	//game player type getter/setter
 	inline GamePlayer_Type getPlayerType(){ return type; }
-	inline void setPlayerType(GamePlayer_Type T){ type = T; }
+	virtual void setPlayerType(GamePlayer_Type T) = 0;
 
 
 	virtual irr::core::vector3df getLineOfSight() = 0;
