@@ -31,6 +31,10 @@ private:
    //Assignments:
    //	0 : Gun Timer Bar
    //	1 : Crosshair
+   //   2 : Clock Pre-Game Label
+   //   3 : Clock Play Label
+   //   4 : Clock Pause Label
+   //   5 : Clock Round Over Label
    video::ITexture* GUITextures[10];
 
    //Texture Storage for character GUI HUD elements
@@ -44,7 +48,8 @@ private:
    //	0 : Minutes (zero to nine)
    //	1 : Seconds (1x10^1)
    //	2 : Seconds (1x10^0)
-   video::ITexture* ClockTextures[3];
+   //   3 : Clock Label
+   video::ITexture* ClockTextures[4];
 
    //Texture Storage for score counters
    //Assignments:

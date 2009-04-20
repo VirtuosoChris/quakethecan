@@ -18,16 +18,16 @@ void PrePlay::Enter(ktcGame & game){
 	//use MsgHandler->postMessage() here to post a message to all other players (use for loop or some shit)
 	
 	//Game now has their own timer
-	game.getPreTime()->setTime(5000);
+	game.getPreTime()->setTime(10000);
 	game.getPreTime()->setLastTime(game.getDevice()->getTimer()->getTime());
 	game.getGameHUD()->setGameState(0);
 
 	//re-initialize player scores
 	game.getGameHUD()->setScores(1,0);
-	game.getGameHUD()->setScores(2,0);
-	game.getGameHUD()->setScores(3,0);
-	game.getGameHUD()->setScores(4,0);
-	game.getGameHUD()->setScores(5,0);
+	game.getGameHUD()->setScores(2,1234);
+	game.getGameHUD()->setScores(3,500000);
+	game.getGameHUD()->setScores(4,100000000);
+	game.getGameHUD()->setScores(5,56789);
 }
 
 void PrePlay::Execute(ktcGame & game, const irr::ITimer* timer){
