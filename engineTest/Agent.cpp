@@ -23,8 +23,123 @@ using namespace irr::video;
 //extern irr::core::vector3df SEEK_POS;
 
 
+canEntity* Agent::gameCan;
 std::vector<Agent*>* Agent::agentList;
 std::vector<coverObject*>* Agent::coverObjectList;
+
+
+
+
+GamePlayer* Agent::getSpottedAgent(){
+
+	GamePlayer* tAgt= NULL;
+
+	double sDist = std::numeric_limits<double>::max();
+	for(int i = 0; i < GamePlayer::getPlayerList()->size();i++){
+	
+		GamePlayer* agt = (*GamePlayer::getPlayerList())[i];
+
+		//should be closest non safe
+		if(agt->isSafe() && agt->getSceneNode() == this->getSceneNode())continue;
+		if(((agt->getSceneNode()->getPosition() - this->getSceneNode()->getPosition()).getLength() < sDist)){
+			
+			sDist = (agt->getPosition() - this->getSceneNode()->getPosition()).getLength();
+			tAgt = agt;
+		
+		}
+	
+	}
+
+
+
+	SPOTTED = tAgt;
+	return tAgt;
+
+}
+
+
+
+std::list<irr::core::vector3df> Agent::generateDefenseArc(double startAngle, double endAngle, double radius, double nodeCount){
+	std::list<irr::core::vector3df> result(nodeCount);
+
+	const irr::core::vector3df& canPos = this->getCan()->getSceneNode()->getPosition();
+
+	double increment = (startAngle - endAngle) / nodeCount;
+
+	for(int i = 0; i < nodeCount; i++){
+		double currentAngle = endAngle + increment*i;
+		result.push_back( 
+			vector3df(0, -canPos.Y + this->getSpawnPoint().Y,0)+radius*vector3df( cos(currentAngle)  ,0,sin(currentAngle) ) + canPos);
+		//irr::scene::ISceneNode* a = this->smgr->addSphereSceneNode(5);
+		//a->setPosition(result.back());
+	}
+	
+	return result;
+}
+
+
+
+//this needs to be moved
+bool GamePlayer::isSafe(){
+
+	if(this->getIt() == this)return true;
+
+	extern irr::scene::ISceneManager* smgr;
+	extern irr::scene::ITriangleSelector*  selector;
+
+//if the distance between me and the person who is it is greater than the fog distance, i'm safe
+if( (this->getIt()->getSceneNode()->getPosition() - mynodep->getPosition()).getLength() > 750){
+return true;
+}
+
+irr::core::line3d<irr::f32> line;
+
+core::vector3df intersection;
+core::triangle3df triangle;
+
+line.start = this->getIt()->getSceneNode()->getPosition();
+//line.end = //getIt()->getLineOfSight().normalize() * 750;
+line.end = mynodep->getPosition();//line.end + line.start;
+
+//if the level is in the way between me and IT, I'm ok
+if(smgr->getSceneCollisionManager()->getCollisionPoint(line, selector,intersection, triangle)){
+return true;
+}
+
+
+//if some other obstacle is in the way between me and IT, Im alright
+irr::scene::ISceneNode* tnode; 
+tnode= smgr->getSceneCollisionManager()->getSceneNodeFromRayBB(line);
+if(mynodep != tnode){
+	return true;}
+
+
+
+//chuckie now hears footsteps
+//if it is facing away from me then i'm alright
+//irr::core::vector3df vec1 = getIt()->getLineOfSight();
+//irr::core::vector3df vec2 = mynodep->getPosition() - getIt()->getSceneNode()->getPosition();
+//if(vec1.dotProduct(vec2)< 0)return true;
+
+
+return false;
+
+
+
+if(tnode != mynodep){return true;}
+else return false;
+
+}
+
+
+
+bool Agent::spotted(Agent* agt){
+
+	if(agt->isSafe())return false;
+	return true;
+}
+
+
 
 void Agent::setSpeed(){
 	if(type == PREY){
@@ -39,6 +154,12 @@ void Agent::setSpeed(){
 
 //update method
 void Agent::update(const irr::ITimer* timer){
+
+
+	//if(!isSafe()){
+	//	std::cout<<"I'm NOT safe!\n";
+	//}return;
+
 	//compute the time interval between now and the last frame for use in time based updating
 	irr::u32 ctime = 0;
 	TIMEELAPSED = (irr::f32)((ctime = timer->getTime()) - LASTUPDATE);
@@ -80,6 +201,9 @@ bool Agent::processMessage(const Message* m){
 //ctor
 Agent::Agent(Model m, irr::core::vector3df sp, Timer tim, Timer inv, GamePlayer_Type T, irr::core::vector3df p, irr::scene::ISceneManager* mgr, mapGraph* g) : model(m), graph(g), GamePlayer(sp, tim, inv, T){
 
+	//this->graph = NULL;
+	mynodep = NULL;
+
 	IT = SPOTTED = NULL;
 	this->LAST_OBSTACLE_CORRECTANCE = 0;
 	s1d = new WallSensorData(NUMFEELERS,ANGLE);
@@ -99,14 +223,14 @@ Agent::Agent(Model m, irr::core::vector3df sp, Timer tim, Timer inv, GamePlayer_
 		std::cout << "I'm a predator and i'm waiting.\n";
 		MAXSPEED = .3f;
 		//wait 10 secs 
-		AgentStateMachine->SetCurrentState(Patrol::GetInstance());
+		AgentStateMachine->SetCurrentState(Wait::GetInstance());
 		AgentStateMachine->StartCurrentState();
 	}
 
 	if(type == PREY){
 		std::cout << "I'm prey and i'm waiting.\n";
 		MAXSPEED = .15f;
-		AgentStateMachine->SetCurrentState(Flee::GetInstance());
+		AgentStateMachine->SetCurrentState(Wait::GetInstance());
 		AgentStateMachine->StartCurrentState();
 	}
 
@@ -471,13 +595,24 @@ void Agent::drawPieSlices(irr::video::IVideoDriver * driver){
 void Agent::createPatrolRoute(mapGraph* mg){
 	
 	pathList.clear();
-	
+	extern irr::scene::ISceneManager* smgr;
 	mapGraph* minspanningtree = mg->minimumSpanningTree(0);
 	//std::cout<<"got the tree\n";
+
+	if(!mynodep)std::cout<<"no mynodep\n";
+		if(!mg)std::cout<<"no mg\n";
+			if(!minspanningtree)std::cout<<"no tree\n";
+				if(!smgr)std::cout<<"no smgr\n";
+					if(!selector)std::cout<<"no selector\n";
+
+
+
+
+
 	std::vector<int>* result = minspanningtree->depthFirstSearch(mg->getClosestNodeUnobstructedSpannable(mynodep->getPosition(),smgr, selector));
 	//delete minspanningtree;
 	//minspanningtree= 0;
-
+if(!result)return;
 
 	if(result->size()){
 		//pathList.resize(mg->NODE_VECTOR.size());

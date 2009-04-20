@@ -49,8 +49,8 @@ std::list<irr::core::vector3df> ktcGame::generateDefenseArc(double startAngle, d
 //-442,351,-863
 //-528.744751 0.024357 102.937782
 ktcGame::ktcGame(irr::IrrlichtDevice *device, irr::scene::ITriangleSelector* selector):can (device), graph (device, "NODE_LIST.txt","ADJACENCY_LIST.txt","EXCLUDE.txt"), 
-agent2 (Model("../media/chuckie.MD2","../media/Chuckie.pcx", device), irr::core::vector3df(0,0,0), 15000, 10000, PREY, core::vector3df(-528.744751, 0.024357, 102.937782), device->getSceneManager(), &graph), 
-plyr(device, irr::core::vector3df(0,0,0), 15000, 0, PREY)
+agent2 (Model("../media/chuckie.MD2","../media/Chuckie.pcx", device), irr::core::vector3df(0,0,0), 3000000, 10000, PREDATOR, core::vector3df(-528.744751, 0.024357, 102.937782), device->getSceneManager(), &graph), 
+plyr(device, irr::core::vector3df(0,0,0), 3000000, 0, PREY)
 {
 
 	graph.selector = selector; 
@@ -119,14 +119,15 @@ plyr(device, irr::core::vector3df(0,0,0), 15000, 0, PREY)
 	Agent::setAgentList(&entities);
 	Agent::setCoverObjectList(&coverObjectList);
 
-	agent2.setIt(&plyr);
-	agent2.setSpotted(&plyr);
+	plyr.setIt(&agent2);
+	agent2.setIt(&agent2);
+	//agent2.setSpotted(&plyr);
 
 	agent2.getSceneNode()->setPosition(spawnPointList[2]);
 	agent2.setPosition(spawnPointList[2]);
 
 	agent2.createCollisionAnimator(selector, smgr);
-	agent2.GetFSM()->ChangeState(Hide::GetInstance());
+	//agent2.GetFSM()->ChangeState(Hide::GetInstance());
 
 	agent2.setSpawnPoint(spawnPointList[2]);
 
@@ -215,6 +216,12 @@ plyr(device, irr::core::vector3df(0,0,0), 15000, 0, PREY)
 		nodeAnimator->drop();
 	}
 
+	Agent::setCan(&this->can);
+
+	GamePlayer::setPlayerList(this->getPlayerList());
+
+	RoundRobin(playerList);
+
 }
 
 
@@ -238,7 +245,7 @@ void ktcGame::update(const irr::ITimer* timer){
 		for(int i = 0; i < playerList.size(); i++)
 		{
 			(*playerList[i]).setInvTimer(5000);
-			(*playerList[i]).setTimer(15000);
+			(*playerList[i]).setTimer(1500000);
 		}
 		//Set last time for offset
 		this->setLastTime(timer->getTime());	
@@ -247,13 +254,13 @@ void ktcGame::update(const irr::ITimer* timer){
 	}
 
 	
-	if(agent2.getPlayerType() == PREY) 
-		std::cout << "I'm an agent and i'm PREY\n";
-	else std::cout << "I'm an agent and i'm a PREDATOR\n";
+	if(agent2.getPlayerType() == PREY) ;
+		//std::cout << "I'm an agent and i'm PREY\n";
+	else ;//std::cout << "I'm an agent and i'm a PREDATOR\n";
 	
-	if(plyr.getPlayerType() == PREY) 
-		std::cout << "I'm a player and i'm PREY\n";
-	else std::cout << "I'm a player and i'm a PREDATOR\n";
+	if(plyr.getPlayerType() == PREY) ;
+		//std::cout << "I'm a player and i'm PREY\n";
+	else;// std::cout << "I'm a player and i'm a PREDATOR\n";
 	
 	
 	device->getVideoDriver()->beginScene(true, true, video::SColor(255,100,101,140));
@@ -309,11 +316,14 @@ void ktcGame::update(const irr::ITimer* timer){
 		if(plyr.getGun().isReady()){
 			MessageHandler::getInstance()->postMessage(KTC_PLAYER_LEFT_MOUSE_CLICK, 0, this, &plyr.getGun(), timer);
 	
+
+				
 			//Make sure gun has passed the firing time limitation
 			if(display->getGunReady()){
 				for(int i = 0; i < entities.size(); i++){
 					if(this->pointing() == entities[i]->getSceneNode()){
 						MessageHandler::getInstance()->postMessage(KTC_KILL, 0, this, entities[i], device->getTimer());
+						MessageHandler::getInstance()->postMessage(KTC_KILL, 0, this, &can, device->getTimer());
 						break;
 					}
 				}
@@ -410,6 +420,7 @@ void ktcGame::RoundRobin(std::vector<GamePlayer *> plst){
 			//change state to init of pred and prey
 			(*plst[i+1]).setPlayerType(PREDATOR);
 			(*plst[i+1]).setSpeed();
+
 			break;
 		}
 		//if i'm a predator at the end of the list, do special indexing shit 
@@ -422,25 +433,32 @@ void ktcGame::RoundRobin(std::vector<GamePlayer *> plst){
 			break;
 		}
 
-		//if i'm a prey, set me to predator
-		if( ( (*plst[i]).getPlayerType() == PREY) && (i+1 != plst.size()) ){
-			(*plst[i]).setPlayerType(PREDATOR);
-			(*plst[i]).setSpeed();
-			//change state to init of pred and prey
-			(*plst[i+1]).setPlayerType(PREY);
-			(*plst[i+1]).setSpeed();
-			break;
-		}
-		//if i'm a prey at the end of the list, do special indexing shit
-		else if( ((*plst[i]).getPlayerType() == PREY) && ( (i+1) == plst.size() ) ){
-			//change state to init of pred and prey
-			(*plst[i]).setPlayerType(PREDATOR);
-			(*plst[i]).setSpeed();
-			(*plst[i% (plst.size() - 1) ]).setPlayerType(PREY);
-			(*plst[i% (plst.size() - 1) ]).setSpeed();
-			break;
-		}
-	}
+
+
+		//if an agent in the agent list is the same as a player in the player list then we can cast it to a player and set its state
+			for(int x = 0; x < entities.size(); x++){
+				
+				
+				if((*plst[i]).getSceneNode() == entities[x]->getSceneNode()){
+				
+				     Agent* ap = 
+						 (Agent*)(&((*plst[i])));
+					 if((*plst[i]).getPlayerType() == PREDATOR){
+						// exit(0);
+						 ap->GetFSM()->ChangeState(Patrol::GetInstance());
+					 }else{
+						 //exit(0);
+					 	 ap->GetFSM()->ChangeState(Patrol::GetInstance());
+					 }
+
+
+					
+
+				}
+			}
+
+		
+	}//end javids for loop
 }
 
 bool ktcGame::processMessage(const Message* m){

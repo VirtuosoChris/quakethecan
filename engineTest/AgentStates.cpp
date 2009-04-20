@@ -15,18 +15,48 @@ Defend* Defend::GetInstance(){
 }
 
 void Defend::Enter(Agent & agt){
+	
+	if(!Agent::getCan() || !agt.getGraph()){
+		agt.GetFSM()->ChangeState(Wait::GetInstance());
+		return;
+	}
+
+	agt.newTargetLocationSpannablePath(Agent::getCan()->getSceneNode()->getPosition());
+	agt.defendTime = 0;
+
 	cout << "Entering Defend state.\n";
 	//use MsgHandler->postMessage() here to post a message to all other players (use for loop or some shit)
 }
 
 void Defend::Execute(Agent & agt, const irr::ITimer* timer){
-	cout << "Executing Defend state.\n";
+	
+	//if(agt.defendTime == 0.0f){
+	agt.defendTime += agt.getUpdateTimeIncrement();
+	//}
+
+	if(agt.getPathList().empty()){
+		agt.generateDefenseArc(0,2*PI, 120, 8);
+	}
+
+	if(!agt.getSpottedAgent() && agt.defendTime > 20000.0f){
+		agt.GetFSM()->ChangeState(Patrol::GetInstance());
+	}
+
+	if(agt.getSpottedAgent()){
+		agt.GetFSM()->ChangeState(Pursue::GetInstance());
+	}
+
+	agt.walk(agt.followPath(timer));
+	
+	//cout << "Executing Defend state.\n";
 
 	//put ChangeState shit here in if conditions
 }
 
 void Defend::Exit(Agent & agt){
-	cout << "Exiting Defend state.\n";
+	//cout << "Exiting Defend state.\n";
+	agt.defendTime = 0;
+	agt.getPathList().clear();
 }
 
 bool Defend::ExecuteMessage(Agent & agt, const Message *msg){
@@ -59,6 +89,10 @@ Patrol* Patrol::GetInstance(){
 void Patrol::Enter(Agent & agt){
 	cout << "Entering Patrol state.\n";
 
+	if(!agt.getSceneNode() || !agt.getGraph() || !agt.getGraph()->selector){
+		agt.GetFSM()->ChangeState(Wait::GetInstance());
+	return;}
+	agt.createPatrolRoute(agt.getGraph());
 //	agt.create
 	//use MsgHandler->postMessage() here to post a message to all other players (use for loop or some shit)
 }
@@ -70,10 +104,19 @@ void Patrol::Execute(Agent & agt, const irr::ITimer* timer){
 	accel = agt.followPath(timer);
 	agt.walk(accel);
 
+	if(agt.getPathList().empty()){
+		agt.GetFSM()->ChangeState(Defend::GetInstance());
+	}
+
+	if(agt.getSpottedAgent()){
+		agt.GetFSM()->ChangeState(Pursue::GetInstance());
+	}
+
 }
 
 void Patrol::Exit(Agent & agt){
-	cout << "Exiting Patrol state.\n";
+	//cout << "Exiting Patrol state.\n";
+	agt.getPathList().clear();
 }
 
 bool Patrol::ExecuteMessage(Agent & agt, const Message *msg){
@@ -104,23 +147,97 @@ Pursue * Pursue::GetInstance(){
 }
 
 void Pursue::Enter(Agent & agt){
-	cout << "Entering Persue state.\n";
+	agt.defendTime = 0;
+	agt.fireTime = 0;
+	std::cout << "Entering Persue state.\n";
 	//use MsgHandler->postMessage() here to post a message to all other players (use for loop or some shit)
+	agt.isFiring = false;
+
+
+	if(!agt.getSceneNode()){agt.GetFSM()->ChangeState(Wait::GetInstance());}
+
 }
 
 void Pursue::Execute(Agent & agt, const irr::ITimer* timer){
-	cout << "Executing Persue state.\n";
+	//cout << "Executing Persue state.\n";
 
-	if(agt.getSpottedAgent()){
+	//if(!agt.getSceneNode()){}
+	extern irr::scene::ISceneManager* smgr;
+	agt.defendTime+= agt.getUpdateTimeIncrement();
+
+GamePlayer*  sp = agt.getSpottedAgent();
+
+if(!sp){ 
+	
+	if(agt.defendTime > 10000){
+
+	agt.GetFSM()->ChangeState(Patrol::GetInstance());
+	return;
+
+	}
+return;
+}else{
+	agt.defendTime = 0;
+}
+
+irr::scene::IAnimatedMeshSceneNode* mynodep = (irr::scene::IAnimatedMeshSceneNode*)agt.getSceneNode();
+
+irr::core::line3d<irr::f32> line;
+
+line.start = agt.getSceneNode()->getPosition();
+line.end = line.start + sp->getVelocity().normalize() * 750;
+irr::scene::ISceneNode* tnode= smgr->getSceneCollisionManager()->getSceneNodeFromRayBB(line);
+double  distSP = (sp->getSceneNode()->getPosition() - agt.getSceneNode()->getPosition()).getLength();
+ bool bulletHits = (tnode == sp->getSceneNode());
+
+
+//if i'm not shooting already and there's someone nearby who isn't safe
+ if(!agt.isFiring && sp && distSP <= (750/3) && agt.fireTime > 2000){
+			//do stuff
+		
+		agt.isFiring = true;
+		
+		mynodep->setLoopMode(false);
+		mynodep->setMD2Animation(scene::EMAT_ATTACK);
+		
+		if(bulletHits){
+			//if the bullet hits kill
+			MessageHandler::getInstance()->postMessage(KTC_KILL, 0, &agt, sp, timer);
+			MessageHandler::getInstance()->postMessage(KTC_KILL, 0, &agt, agt.getCan(), timer); 
+
+//			exit(0);
+	
+		}
+		
+	}
+
+
+	if(agt.isFiring && mynodep->getFrameNr() >= mynodep->getEndFrame()){
+		mynodep->setMD2Animation(scene::EMAT_RUN);
+		agt.isFiring = false;
+		mynodep->setLoopMode(true);
+		std::cout<<"Changing animation\n";
+		agt.fireTime = 0;
+	}
+
+	if(!agt.isFiring){
+		agt.fireTime += agt.getUpdateTimeIncrement();
+	}
+
+
+	if(agt.getSpottedAgent() &&!agt.isFiring) {
+		
+		if(distSP > 750/8){
 		//agt.walk(2*agt.seek(agt.getSpottedAgent()->getPosition())+ agt.wallAvoidance());
-		agt.walk(agt.seek(agt.getSpottedAgent()->getPosition())+ agt.wallAvoidance());
+		agt.walk(agt.seek(agt.getSpottedAgent()->getSceneNode()->getPosition())+ agt.wallAvoidance());
+		}
 	}
 
 	//put ChangeState shit here in if conditions
 }
 
 void Pursue::Exit(Agent & agt){
-	cout << "Exiting Persue state.\n";
+	//cout << "Exiting Persue state.\n";
 }
 
 bool Pursue::ExecuteMessage(Agent & agt, const Message *msg){
@@ -154,14 +271,26 @@ void Hide::Enter(Agent & agt){
 	cout << "Entering Hide state.\n";
 	//use MsgHandler->postMessage() here to post a message to all other players (use for loop or some shit)
 	
+	if( !agt.getGraph()){agt.GetFSM()->ChangeState(Wait::GetInstance());
+	return;
+	}
 	agt.there = false;
 	agt.getPathList().clear();
+	agt.defendTime = 0;
 	
+	if(!agt.getCoverObjectList()){
+		agt.GetFSM()->ChangeState(Wait::GetInstance());
+		std::cout<<"NULL!\n";
+		return;
+	}
+
+	std::cout<<"NOT NULL\n";
+
+	
+
 	int i = agt.getCoverObjectList()->size();
-	srand(((int)&agt));
 	i = abs(rand()%i);
 
-	//minus three causes problems while pathfinding
 	agt.setMyCoverObject((*agt.getCoverObjectList())[i]);
 	agt.newTargetLocationSpannablePath(agt.getMyCoverObject()->getPosition());
 	//getCoverPosition(agt.getIt()));//case when path list is empty but not close enough**********
@@ -169,7 +298,12 @@ void Hide::Enter(Agent & agt){
 }
 
 void Hide::Execute(Agent & agt, const irr::ITimer* timer){
-	cout << "Executing Hide state.\n";
+	//cout << "Executing Hide state.\n";
+
+
+	if(!agt.getMyCoverObject()){agt.GetFSM()->ChangeState(Wait::GetInstance());return;}
+	agt.defendTime += agt.getUpdateTimeIncrement();
+
 
 	//put ChangeState shit here in if conditions
 
@@ -177,9 +311,31 @@ void Hide::Execute(Agent & agt, const irr::ITimer* timer){
 	bool& there = agt.there;
 
 
+///dfsdfds
+
+	if(there && !agt.isSafe() && agt.defendTime > 10000){
+		agt.GetFSM()->ChangeState(Hide::GetInstance());
+	}
+
+
+	if(!agt.isSafe()){
+		//std::cout<<"NOT SAFE\n";
+	}
+
+	if(agt.getTeamDeathCount()){
+	//	std::cout<<"DEAD GUY \n\n\n";
+
+	}
+
+
+	if(agt.getTeamDeathCount() && agt.isSafe()){
+		agt.GetFSM()->ChangeState(Act_Orb::GetInstance());
+	}  
+
+
+	//double agtAngle = 0;//vector3df(0,0,0);
 	double agtAngle = vectorAngle((agt.getPosition() - agt.getMyCoverObject()->getPosition()).normalize()); 
 	double r =agt.getMyCoverObject()->getBoundaryRadius();
-
 
 	//agt.getPathList().push_back(agt.getMyCoverObject()->getCoverPosition(agt.getIt()));
 	
@@ -303,7 +459,7 @@ void Hide::Execute(Agent & agt, const irr::ITimer* timer){
 }
 
 void Hide::Exit(Agent & agt){
-	cout << "Exiting Hide state.\n";
+//	cout << "Exiting Hide state.\n";
 }
 
 bool Hide::ExecuteMessage(Agent & agt, const Message *msg){
@@ -329,16 +485,19 @@ bool Hide::ExecuteMessage(Agent & agt, const Message *msg){
 Flee* Flee::GetInstance(){
 
   static Flee only_inst;
-
   return &only_inst;
 }
 
 void Flee::Enter(Agent & agt){
-	cout << "Entering Flee state.\n";
+
+	agt.GetFSM()->ChangeState(Hide::GetInstance());
+	//cout << "Entering Flee state.\n";
 	//use MsgHandler->postMessage() here to post a message to all other players (use for loop or some shit)
 }
 
 void Flee::Execute(Agent & agt, const irr::ITimer* timer){
+
+	throw new std::string("Execute flee state: This should never be run\n");
 	//cout << "\nExecuting Flee state.\n";
 
 	if(agt.getIt()){
@@ -350,7 +509,7 @@ void Flee::Execute(Agent & agt, const irr::ITimer* timer){
 }
 
 void Flee::Exit(Agent & agt){
-	cout << "Exiting Flee state.\n";
+	//cout << "Exiting Flee state.\n";
 }
 
 bool Flee::ExecuteMessage(Agent & agt, const Message *msg){
@@ -380,19 +539,49 @@ Act_Orb* Act_Orb::GetInstance(){
   return &only_inst;
 }
 
+
+
+//state to go kick the can
 void Act_Orb::Enter(Agent & agt){
+
+
+	if(!agt.getGraph() || !agt.getCan() || !agt.getSceneNode()){
+		
+		agt.GetFSM()->ChangeState(Wait::GetInstance());
+		return;}
+	agt.newTargetLocationSpannablePath(agt.getCan()->getSceneNode()->getPosition());
+
 	cout << "Entering Act_Orb state.\n";
 	//use MsgHandler->postMessage() here to post a message to all other players (use for loop or some shit)
 }
 
-void Act_Orb::Execute(Agent & agt, const irr::ITimer* timer){
-	cout << "Executing Act_Orb state.\n";
 
-	//put ChangeState shit here in if conditions
+void Act_Orb::Execute(Agent & agt, const irr::ITimer* timer){
+//	cout << "Executing Act_Orb state.\n";
+//  if the enemy spots me, i'm gonna go hide, even if i'm really close to the can
+
+	if(!agt.isSafe()){
+		agt.GetFSM()->ChangeState(Hide::GetInstance());
+	}
+
+	agt.walk(agt.followPath(timer));
+
+	//if i'm there, then kick the can.
+	if(agt.getPathList().empty()){
+	
+		for(int i = 0; i < GamePlayer::getPlayerList()->size(); i++){
+			MessageHandler::getInstance()->postMessage(KTC_REVIVE, 0, &agt,(*GamePlayer::getPlayerList())[i] , timer);
+			
+			MessageHandler::getInstance()->postMessage(KTC_REVIVE, 0, &agt,agt.getCan() , timer);
+		}		
+		agt.GetFSM()->ChangeState(Hide::GetInstance());
+	}
+
 }
 
 void Act_Orb::Exit(Agent & agt){
-	cout << "Exiting Act_Orb state.\n";
+	//cout << "Exiting Act_Orb state.\n";
+	agt.getPathList().clear();
 }
 
 bool Act_Orb::ExecuteMessage(Agent & agt, const Message *msg){
@@ -402,7 +591,7 @@ bool Act_Orb::ExecuteMessage(Agent & agt, const Message *msg){
 							//don't kill agent cause he's invincible
 							return true;
 						}
-						cout << "I killed you sucka.\n";
+						//cout << "I killed you sucka.\n";
 						agt.GetFSM()->ChangeState(Die::GetInstance());
 						return true;
 		case KTC_SPOTTED:	cout << "I've been spotted, gotta run!\n";
@@ -424,6 +613,9 @@ Die* Die::GetInstance(){
  
 void Die::Enter(Agent & agt){
 
+	if(!agt.getSceneNode()){agt.GetFSM()->ChangeState(Wait::GetInstance());
+	return;}
+
 	((irr::scene::IAnimatedMeshSceneNode*)agt.getSceneNode())->setMD2Animation(scene::EMAT_DEATH_FALLBACKSLOW);
 	
 	((irr::scene::IAnimatedMeshSceneNode*)agt.getSceneNode())->setLoopMode(false);
@@ -431,7 +623,9 @@ void Die::Enter(Agent & agt){
 	((irr::scene::IAnimatedMeshSceneNode*)agt.getSceneNode())->setAnimationSpeed(20);
 	agt.getPathList().clear();
 	
-	cout<<"cleared";
+	std::cout<<"kill'd";
+	
+	//sets the seek target to self so it stops moving upon death
 	agt.setSeekTarget(((irr::scene::IAnimatedMeshSceneNode*)agt.getSceneNode())->getPosition());
 	
 	agt.getSceneNode()->setPosition(agt.getSceneNode()->getPosition() + vector3df(0,20,0));
@@ -457,7 +651,7 @@ void Die::Execute(Agent & agt, const irr::ITimer* timer){
 
 void Die::Exit(Agent & agt){
 	
-	cout << "I'm about to reset the time.\n";
+	//cout << "I'm about to reset the time.\n";
 	agt.pl_inv.setTime(10000);
 	
 	agt.getSceneNode()->setVisible(true);
@@ -466,7 +660,6 @@ void Die::Exit(Agent & agt){
 	
 	((irr::scene::IAnimatedMeshSceneNode*)agt.getSceneNode())->setLoopMode(true);
 
-	
 	((irr::scene::IAnimatedMeshSceneNode*)agt.getSceneNode())->setMD2Animation(scene::EMAT_STAND);
 	
 }
@@ -478,7 +671,7 @@ bool Die::ExecuteMessage(Agent & agt, const Message * msg){
 		case KTC_SPOTTED:	cout << "I've been spotted, gotta run!\n";
 							return true;
 
-		case KTC_REVIVE:	agt.GetFSM()->ChangeState(Flee::GetInstance());
+		case KTC_REVIVE:	agt.GetFSM()->ChangeState(Hide::GetInstance());
 							return true;
 	}
 
@@ -495,6 +688,11 @@ Wait* Wait::GetInstance(){
  
 void Wait::Enter(Agent & agt){
 	//set anim to stand
+	std::cout<<"Waiting state enter\n";
+
+	//if(!agt.getSceneNode()){agt.GetFSM()->ChangeState(Wait::GetInstance());
+	//return;}
+	//((irr::scene::IAnimatedMeshSceneNode*)agt.getSceneNode())->setMD2Animation(scene::EMAT_STAND);
 }
 
 void Wait::Execute(Agent & agt, const irr::ITimer* timer){

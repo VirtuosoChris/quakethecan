@@ -24,7 +24,7 @@ void PrePlay::Enter(ktcGame & game){
 }
 
 void PrePlay::Execute(ktcGame & game, const irr::ITimer* timer){
-	cout << "Executing PrePlay state.\n";
+	//cout << "Executing PrePlay state.\n";
 	//update round timer
 	game.getPreTime()->update(timer);
 
@@ -82,7 +82,7 @@ void Play::Enter(ktcGame & game){
 
 void Play::Execute(ktcGame & game, const irr::ITimer* timer)
 {
-	cout << "Executing Play state.\n";
+	//cout << "Executing Play state.\n";
 	//update round timer	
 	game.getRoundTime()->update(timer);
 	//update HUD	
@@ -125,7 +125,7 @@ void Pause::Enter(ktcGame & game){
 }
 
 void Pause::Execute(ktcGame & game, const irr::ITimer* timer){
-	cout << "Executing Pause state.\n";
+///	cout << "Executing Pause state.\n";
 
 	game.update(timer);
 	//put ChangeState shit here in if conditions
@@ -166,7 +166,7 @@ void RoundBreak::Enter(ktcGame & game){
 }
 
 void RoundBreak::Execute(ktcGame & game, const irr::ITimer* timer){
-	cout << "Executing RoundBreak state.\n";
+	//cout << "Executing RoundBreak state.\n";
 	
 	//update break timer
 	game.getBreakTime()->update(timer);
@@ -215,7 +215,7 @@ void EndersGame::Enter(ktcGame & game){
 	cout << "Entering EndersGame state.\n";
 	game.getGameHUD()->setGameState(4);}
 void EndersGame::Execute(ktcGame & game, const irr::ITimer* timer){
-	cout << "Executing EndersGame state.\n";
+	//cout << "Executing EndersGame state.\n";
 
 	//put ChangeState shit here in if conditions
 }

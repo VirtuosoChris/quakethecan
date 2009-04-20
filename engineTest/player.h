@@ -54,6 +54,11 @@ public:
 
 	virtual bool processMessage(const Message* msg);
 
+
+	virtual irr::core::vector3df getLineOfSight(){
+		return this->camera->getTarget();
+	}
+
 	inline gunEntity& getGun(){return this->gun;}
 
 };

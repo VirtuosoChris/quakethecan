@@ -1,9 +1,13 @@
 #include "canEntity.h"
+#include "Message.h"
 using namespace irr;
 using namespace irr::core;
 #include <iostream>
 
 canEntity::canEntity(IrrlichtDevice *device){
+
+
+	killCount = 0;
 	
 	irr::scene::ISceneManager* smgr = device->getSceneManager();
 	video::IVideoDriver* driver = device->getVideoDriver();
@@ -70,5 +74,15 @@ void canEntity::update(const irr::ITimer* timer){
 
 
 bool canEntity::processMessage(const Message* m){
+
+	switch(m->messageType){
+	
+		case KTC_KILL: killCount++;break;
+		case KTC_REVIVE: killCount = 0;break;
+
+		default:break;
+	
+	}
+
 	return true;
 }

@@ -8,7 +8,13 @@ enum GamePlayer_Type{PREDATOR, PREY};
 
 class GamePlayer : public physicsObject{
 
+
+	static std::vector<GamePlayer*>* playerList;
+
 protected:
+	
+	GamePlayer* IT;
+
 	//this delegates a game player to one of two types: PREDATOR or PREY
 	GamePlayer_Type type;
 
@@ -17,6 +23,15 @@ protected:
 	double MAXSPEED;
 
 public:
+
+
+void setIt(GamePlayer* p){IT = p;}
+bool GamePlayer::isSafe();
+GamePlayer* getIt(){return IT;}
+	
+	
+	inline static void setPlayerList(std::vector<GamePlayer*>* abc){playerList = abc;}
+	inline static std::vector<GamePlayer*>* getPlayerList(){return playerList;}
 
 	//every Agent now has their own timer
 	Timer pl_time;
@@ -45,6 +60,9 @@ public:
 	//game player type getter/setter
 	inline GamePlayer_Type getPlayerType(){ return type; }
 	inline void setPlayerType(GamePlayer_Type T){ type = T; }
+
+
+	virtual irr::core::vector3df getLineOfSight() = 0;
 };
 
 #endif

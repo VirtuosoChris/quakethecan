@@ -61,11 +61,18 @@ using namespace io;
 using namespace irrklang;
 
 
+//nasty global variable hack at 3 am before the deadline
+scene::ISceneManager* smgr;
+irr::scene::ITriangleSelector*  selector;
+
 std::vector<irr::scene::ISceneNode*> specialWalls;
 
 
 int main(int, char**){
+
 	IrrlichtDevice *device;
+
+
 
 	//create the irrlicht device
 	//IrrlichtDevice *device = createDevice(video::EDT_OPENGL, core::dimension2d<s32>(1440,900), 32, false, true, true, InputHandler::getInstance());
@@ -98,7 +105,7 @@ int main(int, char**){
 
 	//get the driver, scene manager, and gui environment objects
 	video::IVideoDriver* driver = device->getVideoDriver();
-	scene::ISceneManager* smgr = device->getSceneManager();
+ smgr = device->getSceneManager();
  
 	//Add this back in with the return of the Main GUI
 	gui::IGUIEnvironment* guienv = device->getGUIEnvironment();
@@ -155,7 +162,7 @@ int main(int, char**){
 
 
 	//create a triangle selector object for the map for use in creating collisions
-	irr::scene::ITriangleSelector*  selector = NULL;
+	 selector = NULL;
 	selector = smgr->createOctTreeTriangleSelector(mesh->getMesh(quake3::E_Q3_MESH_GEOMETRY),//map->getMesh(0), 
 												   mapNode,128); 
 	if(!selector)return 1;
@@ -217,6 +224,13 @@ int main(int, char**){
 	specialWalls.push_back(x2);
 
 
+
+	Agent::setAgentList(0);
+	Agent::setCan(0);
+	Agent::setCoverObjectList(0);
+	GamePlayer::setPlayerList(0);
+
+	srand((unsigned int)device);
 	ktcGame game(device, selector);
 
 

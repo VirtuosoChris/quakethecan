@@ -21,11 +21,11 @@ public:
 	
 		//tVec = vector3df(0,0,0);
 		const double hideRadius = 10.0f;
-		double objectRadius = 71.0f/2; //by pythagoras, using the diagonal of the 50x50 square as the radius 
+		double objectRadius = 71.0f/2; //by pythagoras, using half the diagonal of the 50x50 square as the radius 
 
 		spot->setPosition((tVec * (hideRadius + objectRadius)) + this->mynodep->getPosition());
 		//spot->setMaterialFlag(video::EMF_ZBUFFER, false);
-		spot->setVisible(true);
+		spot->setVisible(false);
 		return (tVec * (hideRadius + objectRadius)) + this->mynodep->getPosition();
 
 	}

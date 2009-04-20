@@ -16,6 +16,7 @@
 #include "GamePlayer.h"
 #include "coverObject.h"
 #include <vector>
+#include "canEntity.h"
 
 
 const double mass = 25; //was 100 // was 25
@@ -34,13 +35,11 @@ private:
 
 	double ACCELRATE;
 
-	physicsObject* IT;
-	physicsObject* SPOTTED;
+	GamePlayer* SPOTTED;
 
 	coverObject* myCoverObject;
 	
 	irr::u32 LASTUPDATE;
-	
 	
 	//an object of the state machine that the agent uses to implement an FSM
 	StateMachine<Agent> * AgentStateMachine;
@@ -61,6 +60,7 @@ private:
 	//list of all the agents other agents can "see"
 	static std::vector<Agent*>* agentList;
 	static std::vector<coverObject*>* coverObjectList;
+	static canEntity* gameCan;
 	
 	//data structure representing the 3d model
 	Model model;
@@ -71,20 +71,30 @@ private:
 	void correctPath();
 
 
+	void newTargetLocation(irr::core::vector3df);
+
 public:
+double fireTime;
+bool isFiring;
 	
+
+GamePlayer* getSpottedAgent();
+std::list<irr::core::vector3df> generateDefenseArc(double startAngle, double endAngle, double radius, double nodeCount);
+	static canEntity* getCan(){return gameCan;}
+	static void setCan(canEntity* c){gameCan = c;}
+
 	bool there;
     bool MOVING;
+	double defendTime;
 
 	scene::ISceneManager* smgr;
 
 	virtual void setSpeed();
 
 	irr::core::vector3df getCurrentSeekTarget(){return currentSeekTarget;}
-	void setIt(physicsObject* p){IT = p;}
-	void setSpotted(physicsObject* p){SPOTTED = p;}
-	physicsObject* getIt(){return IT;}
-	physicsObject* getSpottedAgent(){return SPOTTED;}
+	
+	void setSpotted(GamePlayer* p){SPOTTED = p;}
+	
 
 	irr::f32  getUpdateTimeIncrement(){return this->TIMEELAPSED;}
 
@@ -93,7 +103,7 @@ public:
 	irr::core::vector3df wallAvoidance();
 	irr::core::vector3df followPath(const irr::ITimer* timer);
 	irr::core::vector3df flee(irr::core::vector3df);
-	void newTargetLocation(irr::core::vector3df);
+	
 	void newTargetLocationSpannablePath(irr::core::vector3df);
 	void createPatrolRoute(mapGraph* mg);
 
@@ -174,6 +184,14 @@ public:
 	coverObject* getMyCoverObject(){return myCoverObject;}
 	void setMyCoverObject(coverObject* c){myCoverObject = c;}
 
+	virtual irr::core::vector3df getLineOfSight(){
+	return velocity;
+	}
+
+
+	int getTeamDeathCount(){return this->getCan()->getKillCount();}
+	
+	bool spotted(Agent* agt);
 };
 
 #endif
