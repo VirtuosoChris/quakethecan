@@ -1,9 +1,6 @@
 #ifndef AGENT
 #define AGENT
 
-//vsync bug
-//dropped behavior
-//quick hacks
 
 #include "irrlicht.h"
 #include "GameEntity.h"
