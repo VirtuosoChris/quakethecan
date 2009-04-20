@@ -622,6 +622,8 @@ void Agent::correctPath(){
 	int tgt = this->graph->getClosestNodeUnobstructed(currentSeekTarget,smgr,selector);
 
 
+
+	//CPNOTE::WHAT? Shouldnt' this be tgt= stuff?  Why did i do that?  It's day before release and I don't want to go changing things if it seems to be working...
 	//when the agent is getting stuck on the torch, they're closest to the node behind the torch, so source is equal to target and no path correction is getting done
 	//this makes the agent backtrack and try again, but it will prevent them from getting stuck permanently
 	if(src == tgt){
