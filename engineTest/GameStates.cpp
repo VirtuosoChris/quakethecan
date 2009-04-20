@@ -42,7 +42,7 @@ void PrePlay::Execute(ktcGame & game, const irr::ITimer* timer){
 		game.getPreTime()->getSecsFirst());	
 	
 	//Pre-Play Time is up
-	if((timer->getTime() - game.getLastTime()) > 5000)	
+	if((timer->getTime() - game.getLastTime()) > 10000)	
 	{
 		//Set last time for offset
 		game.setLastTime(timer->getTime());	
@@ -98,6 +98,15 @@ void Play::Execute(ktcGame & game, const irr::ITimer* timer)
 		game.getRoundTime()->getMins(),
 		game.getRoundTime()->getSecsSecond(),
 		game.getRoundTime()->getSecsFirst());
+
+	//if time is up, then round robin shit so that we get new predator and prey
+	if(game.getRoundTime()->getTime() <= 0){
+		game.RoundRobin(game.getPlayerList());
+		//Set last time for offset
+		game.getRoundTime()->setLastTime(timer->getTime());	
+		//Change to Play State		
+		game.GetFSM()->ChangeState(RoundBreak::getInstance());
+	}
 
 	game.update(timer);
 }

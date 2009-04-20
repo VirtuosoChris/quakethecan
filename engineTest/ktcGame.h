@@ -93,7 +93,7 @@ public:
 
 	//inline get functions
 	inline StateMachine<ktcGame> * GetFSM() const{ return GameStateMachine; }
-	inline std::vector<GamePlayer *> * getPlayerList() const {return &playerList;}
+	inline std::vector<GamePlayer *>  getPlayerList() const {return playerList;}
 	inline Timer * getRoundTime() {return &round_time;}
 	inline Timer * getPreTime() {return &pre_time;}
 	inline Timer * getBreakTime() {return &break_time;}
