@@ -209,85 +209,90 @@ void gameHUD::drawScores()
 	driver->draw2DImage(Player5ScoreTextures[5], core::position2d<s32>((screenX)-24, (screenY/24)+171), core::rect<s32>(0,0,12,16), 0, video::SColor(255,255,255,255), true);
 }
 
-void gameHUD::setScores(int playerNum, int score)
+void gameHUD::updateScores(int playerScores[])
 {
-	int scoreMagnitudes[6] ;
-	int temp;
-	
-	//check for score limits
-	if(score > 999999)
-		score = 999999; //set it to the max
-	if(score < 0)
-		score = 0; //set it to the min
+	int scoreMagnitudes[6];
+	int temp, scoreTemp;
 
-	//n^5
-	temp = score/100000;
-	scoreMagnitudes[0] = temp;
-	score -= temp*100000;
-	//n^4
-	temp = score/10000;
-	scoreMagnitudes[1] = temp;
-	score -= temp*10000;
-	//n^3
-	temp = score/1000;
-	scoreMagnitudes[2] = temp;
-	score -= temp*1000;
-	//n^2
-	temp = score/100;
-	scoreMagnitudes[3] = temp;
-	score -= temp*100;
-	//n^1
-	temp = score/10;
-	scoreMagnitudes[4] = temp;
-	score -= temp*10;
-	//n^0
-	scoreMagnitudes[5] = score;
-
-	switch(playerNum)
+	for(int i=0 ; i<5 ; i++)
 	{
-		case 1:
-			Player1ScoreTextures[0] = ScoreTextures[scoreMagnitudes[0]+10];
-			Player1ScoreTextures[1] = ScoreTextures[scoreMagnitudes[1]+10];
-			Player1ScoreTextures[2] = ScoreTextures[scoreMagnitudes[2]+10];
-			Player1ScoreTextures[3] = ScoreTextures[scoreMagnitudes[3]+10];
-			Player1ScoreTextures[4] = ScoreTextures[scoreMagnitudes[4]+10];
-			Player1ScoreTextures[5] = ScoreTextures[scoreMagnitudes[5]+10];
-			break;
-		case 2:
-			Player2ScoreTextures[0] = ScoreTextures[scoreMagnitudes[0]+10];
-			Player2ScoreTextures[1] = ScoreTextures[scoreMagnitudes[1]+10];
-			Player2ScoreTextures[2] = ScoreTextures[scoreMagnitudes[2]+10];
-			Player2ScoreTextures[3] = ScoreTextures[scoreMagnitudes[3]+10];
-			Player2ScoreTextures[4] = ScoreTextures[scoreMagnitudes[4]+10];
-			Player2ScoreTextures[5] = ScoreTextures[scoreMagnitudes[5]+10];
-			break;
-		case 3:
-			Player3ScoreTextures[0] = ScoreTextures[scoreMagnitudes[0]+10];
-			Player3ScoreTextures[1] = ScoreTextures[scoreMagnitudes[1]+10];
-			Player3ScoreTextures[2] = ScoreTextures[scoreMagnitudes[2]+10];
-			Player3ScoreTextures[3] = ScoreTextures[scoreMagnitudes[3]+10];
-			Player3ScoreTextures[4] = ScoreTextures[scoreMagnitudes[4]+10];
-			Player3ScoreTextures[5] = ScoreTextures[scoreMagnitudes[5]+10];
-			break;
-		case 4:
-			Player4ScoreTextures[0] = ScoreTextures[scoreMagnitudes[0]+10];
-			Player4ScoreTextures[1] = ScoreTextures[scoreMagnitudes[1]+10];
-			Player4ScoreTextures[2] = ScoreTextures[scoreMagnitudes[2]+10];
-			Player4ScoreTextures[3] = ScoreTextures[scoreMagnitudes[3]+10];
-			Player4ScoreTextures[4] = ScoreTextures[scoreMagnitudes[4]+10];
-			Player4ScoreTextures[5] = ScoreTextures[scoreMagnitudes[5]+10];
-			break;
-		case 5:
-			Player5ScoreTextures[0] = ScoreTextures[scoreMagnitudes[0]+10];
-			Player5ScoreTextures[1] = ScoreTextures[scoreMagnitudes[1]+10];
-			Player5ScoreTextures[2] = ScoreTextures[scoreMagnitudes[2]+10];
-			Player5ScoreTextures[3] = ScoreTextures[scoreMagnitudes[3]+10];
-			Player5ScoreTextures[4] = ScoreTextures[scoreMagnitudes[4]+10];
-			Player5ScoreTextures[5] = ScoreTextures[scoreMagnitudes[5]+10];
-			break;
-		default:
-			break;
-	}
+		scoreTemp = playerScores[i];
+
+		//check for score limits
+		if(scoreTemp > 999999)
+			scoreTemp = 999999; //set it to the max
+		if(scoreTemp < 0)
+			scoreTemp = 0; //set it to the min
+
+		//n^5
+		temp = scoreTemp/100000;
+		scoreMagnitudes[0] = temp;
+		scoreTemp -= temp*100000;
+		//n^4
+		temp = scoreTemp/10000;
+		scoreMagnitudes[1] = temp;
+		scoreTemp -= temp*10000;
+		//n^3
+		temp = scoreTemp/1000;
+		scoreMagnitudes[2] = temp;
+		scoreTemp -= temp*1000;
+		//n^2
+		temp = scoreTemp/100;
+		scoreMagnitudes[3] = temp;
+		scoreTemp -= temp*100;
+		//n^1
+		temp = scoreTemp/10;
+		scoreMagnitudes[4] = temp;
+		scoreTemp -= temp*10;
+		//n^0
+		scoreMagnitudes[5] = scoreTemp;
+
+		switch(i)
+		{
+			case 0:
+				Player1ScoreTextures[0] = ScoreTextures[scoreMagnitudes[0]+10];
+				Player1ScoreTextures[1] = ScoreTextures[scoreMagnitudes[1]+10];
+				Player1ScoreTextures[2] = ScoreTextures[scoreMagnitudes[2]+10];
+				Player1ScoreTextures[3] = ScoreTextures[scoreMagnitudes[3]+10];
+				Player1ScoreTextures[4] = ScoreTextures[scoreMagnitudes[4]+10];
+				Player1ScoreTextures[5] = ScoreTextures[scoreMagnitudes[5]+10];
+				break;
+			case 1:
+				Player2ScoreTextures[0] = ScoreTextures[scoreMagnitudes[0]+10];
+				Player2ScoreTextures[1] = ScoreTextures[scoreMagnitudes[1]+10];
+				Player2ScoreTextures[2] = ScoreTextures[scoreMagnitudes[2]+10];
+				Player2ScoreTextures[3] = ScoreTextures[scoreMagnitudes[3]+10];
+				Player2ScoreTextures[4] = ScoreTextures[scoreMagnitudes[4]+10];
+				Player2ScoreTextures[5] = ScoreTextures[scoreMagnitudes[5]+10];
+				break;
+			case 2:
+				Player3ScoreTextures[0] = ScoreTextures[scoreMagnitudes[0]+10];
+				Player3ScoreTextures[1] = ScoreTextures[scoreMagnitudes[1]+10];
+				Player3ScoreTextures[2] = ScoreTextures[scoreMagnitudes[2]+10];
+				Player3ScoreTextures[3] = ScoreTextures[scoreMagnitudes[3]+10];
+				Player3ScoreTextures[4] = ScoreTextures[scoreMagnitudes[4]+10];
+				Player3ScoreTextures[5] = ScoreTextures[scoreMagnitudes[5]+10];
+				break;
+			case 3:
+				Player4ScoreTextures[0] = ScoreTextures[scoreMagnitudes[0]+10];
+				Player4ScoreTextures[1] = ScoreTextures[scoreMagnitudes[1]+10];
+				Player4ScoreTextures[2] = ScoreTextures[scoreMagnitudes[2]+10];
+				Player4ScoreTextures[3] = ScoreTextures[scoreMagnitudes[3]+10];
+				Player4ScoreTextures[4] = ScoreTextures[scoreMagnitudes[4]+10];
+				Player4ScoreTextures[5] = ScoreTextures[scoreMagnitudes[5]+10];
+				break;
+			case 4:
+				Player5ScoreTextures[0] = ScoreTextures[scoreMagnitudes[0]+10];
+				Player5ScoreTextures[1] = ScoreTextures[scoreMagnitudes[1]+10];
+				Player5ScoreTextures[2] = ScoreTextures[scoreMagnitudes[2]+10];
+				Player5ScoreTextures[3] = ScoreTextures[scoreMagnitudes[3]+10];
+				Player5ScoreTextures[4] = ScoreTextures[scoreMagnitudes[4]+10];
+				Player5ScoreTextures[5] = ScoreTextures[scoreMagnitudes[5]+10];
+				break;
+			default:
+				break;
+		}//switch
+	}//for
 }
 void gameHUD::setShotTimerBarValue(int shotTimerValue){
    deltaShotTimerBar = shotTimerValue;

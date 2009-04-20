@@ -23,11 +23,11 @@ void PrePlay::Enter(ktcGame & game){
 	game.getGameHUD()->setGameState(0);
 
 	//re-initialize player scores
-	game.getGameHUD()->setScores(1,0);
-	game.getGameHUD()->setScores(2,1234);
-	game.getGameHUD()->setScores(3,500000);
-	game.getGameHUD()->setScores(4,100000000);
-	game.getGameHUD()->setScores(5,56789);
+	//game.getGameHUD()->setScores(1,0);
+	//game.getGameHUD()->setScores(2,1234);
+	//game.getGameHUD()->setScores(3,500000);
+	//game.getGameHUD()->setScores(4,100000000);
+	//game.getGameHUD()->setScores(5,56789);
 }
 
 void PrePlay::Execute(ktcGame & game, const irr::ITimer* timer){

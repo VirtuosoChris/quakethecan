@@ -13,11 +13,10 @@ private:
 	video::IVideoDriver* driver;
 
 	int x1Bar, y1Bar, x2Bar, y2Bar;
-	int player1Score, player2Score, player3Score, player4Score, player5Score;
-	int whoHasGun;
 
 	enum {PRE_PLAY,PLAY,PAUSE,BREAK,END_GAME};	
 	int gameState;
+	int whoHasGun;
 
 	int	maxShotTimerBarValue; //size of the timer bar
 	int	roundTimer;			  //Current Round Time, updated by clock function
@@ -86,7 +85,7 @@ public:
    void loadTextures(); //loads all relevant textures into private member variables
    void setGunReady(bool ready); //sets gun Readiness
    bool getGunReady(); //returns true if gun is ready to be fired, false otherwise
-   void setScores(int playerNum, int score);
+   void updateScores(int playerScores[]);
    void drawScores(); //renders the scoreboard
    void drawMarker(int playerNum);
 }; 

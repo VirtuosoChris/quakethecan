@@ -76,6 +76,9 @@ private:
 
 public:
 
+	int player1Score, player2Score, player3Score, player4Score, player5Score;
+	int whoHasGun;
+
 	void displayMinSpanningTree(){dMode = MINSPANNINGTREE; }	
 	void disableDebugOutput(){dMode = NONE; }
 	void displayFullGraph(){dMode = FULLGRAPH;}

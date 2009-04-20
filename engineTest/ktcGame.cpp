@@ -77,6 +77,17 @@ agent2 (Model("../media/chuckie.MD2","../media/Chuckie.pcx", device), irr::core:
 	//Instantiate the GameHUD Device
 	this->display = gameHUD::getInstance();
 
+	//Setup Initial Player Scores
+	player1Score = 0;
+	player2Score = 200;
+	player3Score = 5678;
+	player4Score = 100000000;
+	player5Score = 73829;
+
+	//Setup Who Has Gun
+	whoHasGun = 1;
+	display->setGunMarker(1);
+
 	CHUCKIE = agent2.getModel();
 	
 	FILE* fp = fopen("SPAWN_POINTS.txt", "r");
@@ -234,6 +245,15 @@ agent2 (Model("../media/chuckie.MD2","../media/Chuckie.pcx", device), irr::core:
 
 
 void ktcGame::update(const irr::ITimer* timer){
+	
+	int allPlayerScores[5];
+	allPlayerScores[0] = player1Score;
+	allPlayerScores[1] = player2Score;
+	allPlayerScores[2] = player3Score;
+	allPlayerScores[3] = player4Score;
+	allPlayerScores[4] = player5Score;
+
+	display->updateScores(allPlayerScores);
 	
 	/*//if time is up, then round robin shit so that we get new predator and prey
 	if(plyr.pl_time.getTime() <= 0){
