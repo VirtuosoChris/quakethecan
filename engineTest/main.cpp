@@ -67,12 +67,12 @@ irr::scene::ITriangleSelector*  selector;
 
 std::vector<irr::scene::ISceneNode*> specialWalls;
 
+IrrlichtDevice *device;
+
 
 int main(int, char**){
 
-	IrrlichtDevice *device;
-
-
+	
 
 	//create the irrlicht device
 	//IrrlichtDevice *device = createDevice(video::EDT_OPENGL, core::dimension2d<s32>(1440,900), 32, false, true, true, InputHandler::getInstance());

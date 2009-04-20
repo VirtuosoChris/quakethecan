@@ -98,7 +98,7 @@ void Patrol::Enter(Agent & agt){
 }
 
 void Patrol::Execute(Agent & agt, const irr::ITimer* timer){
-	//cout << "Executing Patrol state.\n";
+	cout << "Executing Patrol state.\n";
 
 	irr::core::vector3df accel;
 	accel = agt.followPath(timer);
@@ -202,8 +202,38 @@ double  distSP = (sp->getSceneNode()->getPosition() - agt.getSceneNode()->getPos
 		mynodep->setLoopMode(false);
 		mynodep->setMD2Animation(scene::EMAT_ATTACK);
 		
+		
+		//to target vector
+		irr::core::vector3df tVec = (sp->getSceneNode()->getPosition() - agt.getSceneNode()->getPosition()).normalize() * 750;
+		//look vector
+		tVec.Y = 0;
+		irr::core::vector3df lVec = agt.getLineOfSight().normalize()*750;
+		lVec.Y = 0;
+
+		double dp = tVec.dotProduct(lVec);
+
+
+		bulletHits = true;
+		if(dp < 0){
+			bulletHits = false;
+		}
+		else{
+			//	bulletHits = true;
+			//if(acos(dp) <= degreesToRadians(60)){
+			//bulletHits = true;
+			if( acos(dp) >= degreesToRadians(60)){
+			bulletHits = false;
+			}
+
+			//if(sp->isSafe()){
+			
+		//	bulletHits = false;}
+			
+		}
+
 		if(bulletHits){
 			//if the bullet hits kill
+		//	exit(0);
 			MessageHandler::getInstance()->postMessage(KTC_KILL, 0, &agt, sp, timer);
 			MessageHandler::getInstance()->postMessage(KTC_KILL, 0, &agt, agt.getCan(), timer); 
 
@@ -325,7 +355,11 @@ void Hide::Enter(Agent & agt){
 }
 
 void Hide::Execute(Agent & agt, const irr::ITimer* timer){
+	
+	//return;
 	//cout << "Executing Hide state.\n";
+	//if(agt.getPlayerType() == PREY)
+	//	std::cout << "I'm prey.\n";
 
 	if(agt.getInvTimer().getTime() >0){
 		agt.flavorText->setText( stringw( agt.getInvTimer().getTime()/1000).c_str());
@@ -496,6 +530,7 @@ void Hide::Exit(Agent & agt){
 }
 
 bool Hide::ExecuteMessage(Agent & agt, const Message *msg){
+	std::cout << "Hide got a mesage.\n";
 	switch(msg->messageType){
 		//put whatever message types you need here, these are just some examples until we change shit up
 		case KTC_KILL:	if(agt.pl_inv.getTime() > 0){
@@ -740,8 +775,7 @@ void Wait::Enter(Agent & agt){
 
 void Wait::Execute(Agent & agt, const irr::ITimer* timer){
 	
-	if(agt.getTimer().getTime() >= 10000)
-		agt.GetFSM()->ChangeState(Patrol::GetInstance());
+
 }
 
 void Wait::Exit(Agent & agt){
@@ -749,6 +783,48 @@ void Wait::Exit(Agent & agt){
 }
 
 bool Wait::ExecuteMessage(Agent & agt, const Message * msg){
+
+	//false always gets returned here because we don't want to handle any messages in the wait state
+	return false;
+}
+
+
+Start* Start::GetInstance(){
+	static Start only_inst;
+	return &only_inst;
+
+}
+ 
+void Start::Enter(Agent & agt){
+	//set anim to stand
+	std::cout<<"Waiting state enter\n";
+extern IrrlichtDevice *device;
+
+	start = device->getTimer()->getTime();
+	finish = start + 10000;
+
+	//if(!agt.getSceneNode()){agt.GetFSM()->ChangeState(Wait::GetInstance());
+	//return;}
+	//((irr::scene::IAnimatedMeshSceneNode*)agt.getSceneNode())->setMD2Animation(scene::EMAT_STAND);
+}
+
+void Start::Execute(Agent & agt, const irr::ITimer* timer){
+	std::cout << "Agent start execute.\n";
+	//std::cout << agt.getTimer().getTime() << std::endl;
+	//std::cout << finish << std::endl;
+	extern IrrlichtDevice *device;
+
+	if(device->getTimer()->getTime() >= finish){
+		std::cout << device->getTimer()->getTime();
+		agt.GetFSM()->ChangeState(Patrol::GetInstance());
+	}
+}
+
+void Start::Exit(Agent & agt){
+
+}
+
+bool Start::ExecuteMessage(Agent & agt, const Message * msg){
 
 	//false always gets returned here because we don't want to handle any messages in the wait state
 	return false;

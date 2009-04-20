@@ -40,7 +40,7 @@ GamePlayer* Agent::getSpottedAgent(){
 		GamePlayer* agt = (*GamePlayer::getPlayerList())[i];
 
 		//should be closest non safe
-		if(agt->isSafe() && agt->getSceneNode() == this->getSceneNode())continue;
+		if(agt->isSafe() || agt->getSceneNode() == this->getSceneNode())continue;
 		if(((agt->getSceneNode()->getPosition() - this->getSceneNode()->getPosition()).getLength() < sDist)){
 			if( ! agt->getSceneNode()->isVisible())continue; // if the player dies, bug occurs
 			sDist = (agt->getPosition() - this->getSceneNode()->getPosition()).getLength();
@@ -59,10 +59,10 @@ GamePlayer* Agent::getSpottedAgent(){
 
 void Agent::setPlayerType(GamePlayer_Type T) {
 	type = T;
-	if(T == PREDATOR)
-this->GetFSM()->ChangeState(Patrol::GetInstance());
-else
-this->GetFSM()->ChangeState(Hide::GetInstance());
+	if(type == PREDATOR)
+		this->GetFSM()->ChangeState(Start::GetInstance());
+	else
+		this->GetFSM()->ChangeState(Hide::GetInstance());
 }
 
 
@@ -90,10 +90,11 @@ std::list<irr::core::vector3df> Agent::generateDefenseArc(double startAngle, dou
 //this needs to be moved
 bool GamePlayer::isSafe(){
 
+	//if i'm it, i'm safe
 	if(this->getIt() == this)return true;
 
-	extern irr::scene::ISceneManager* smgr;
-	extern irr::scene::ITriangleSelector*  selector;
+extern irr::scene::ISceneManager* smgr;
+extern irr::scene::ITriangleSelector*  selector;
 
 //if the distance between me and the person who is it is greater than the fog distance, i'm safe
 if( (this->getIt()->getSceneNode()->getPosition() - mynodep->getPosition()).getLength() > 750){
@@ -105,21 +106,28 @@ irr::core::line3d<irr::f32> line;
 core::vector3df intersection;
 core::triangle3df triangle;
 
-line.start = this->getIt()->getSceneNode()->getPosition();
+line.end = this->getIt()->getSceneNode()->getPosition();
 //line.end = //getIt()->getLineOfSight().normalize() * 750;
-line.end = mynodep->getPosition();//line.end + line.start;
+line.start = mynodep->getPosition();//line.end + line.start;
+
+//line.start = ((line.end - line.start).normalize() * 75) + line.start;
 
 //if the level is in the way between me and IT, I'm ok
 if(smgr->getSceneCollisionManager()->getCollisionPoint(line, selector,intersection, triangle)){
-return true;
+//	std::cout<<"Wall in the way\n";
+	return true;
 }
 
 
 //if some other obstacle is in the way between me and IT, Im alright
 irr::scene::ISceneNode* tnode; 
 tnode= smgr->getSceneCollisionManager()->getSceneNodeFromRayBB(line);
-if(mynodep != tnode){
-	return true;}
+if(this->getIt()->getSceneNode() != tnode){
+
+	//std::cout<<"Something else in the way\n";
+	return true;
+
+}
 
 
 
@@ -155,7 +163,7 @@ void Agent::setSpeed(){
 		ACCELRATE = MAXSPEED/4;
 	}
 	else{
-		MAXSPEED = .1f;
+		MAXSPEED = .15f;
 		ACCELRATE = MAXSPEED/4;
 	}
 }

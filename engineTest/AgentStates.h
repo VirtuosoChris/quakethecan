@@ -188,4 +188,27 @@ class Wait : public State<Agent>{
 		virtual bool ExecuteMessage(Agent &, const Message *msg);
 };
 
+//Start state
+class Start : public State<Agent>{
+
+	private:
+		int start;
+		int finish;
+
+		Start(){}
+
+
+	public:
+		
+		static Start* GetInstance();
+		
+		virtual void Enter(Agent & agt);
+		
+		virtual void Execute(Agent & agt, const irr::ITimer* timer);
+		
+		virtual void Exit(Agent & agt);
+
+		virtual bool ExecuteMessage(Agent &, const Message *msg);
+};
+
 #endif

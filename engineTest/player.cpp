@@ -17,6 +17,17 @@ void player::gunInit(){
 
 void player::setPlayerType(GamePlayer_Type T){
 type = T;
+	if(type == PREDATOR){
+		cout << "player is a predator.\n";
+		//starting at wait state
+		PlayerStateMachine->ChangeState(PlayerStart::GetInstance());
+	}
+	else{
+		cout << "player is prey.\n";
+		//starting at play state
+		PlayerStateMachine->ChangeState(PlayerPlay::GetInstance());
+		cout << "I've set the current state.\n";
+	}
 }
 
 void player::setSpeed(){
@@ -28,7 +39,7 @@ void player::setSpeed(){
 		anim->setMoveSpeed(MAXSPEED);
 	}
 	else{
-		MAXSPEED = .1f;
+		MAXSPEED = .15f;
 		anim->setMoveSpeed(MAXSPEED);
 	}
 
@@ -69,7 +80,7 @@ player::player(irr::IrrlichtDevice* dev, irr::core::vector3df sp, Timer tim, Tim
 	if(type == PREDATOR){
 		cout << "player is a predator.\n";
 		//starting at wait state
-		PlayerStateMachine->SetCurrentState( PlayerWait::GetInstance() );
+		PlayerStateMachine->SetCurrentState( PlayerStart::GetInstance() );
 		PlayerStateMachine->StartCurrentState();
 		cout << "I've set the current state.\n";
 	}

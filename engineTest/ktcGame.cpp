@@ -50,7 +50,6 @@ std::list<irr::core::vector3df> ktcGame::generateDefenseArc(double startAngle, d
 //-528.744751 0.024357 102.937782
 ktcGame::ktcGame(irr::IrrlichtDevice *device, irr::scene::ITriangleSelector* selector, irrklang::ISoundEngine *soundEngine):can (device), graph (device, "NODE_LIST.txt","ADJACENCY_LIST.txt","EXCLUDE.txt"), 
 agent2 (Model("../media/chuckie.MD2","../media/Chuckie.pcx", device), irr::core::vector3df(0,0,0), 15000, 10000, PREY, core::vector3df(-528.744751, 0.024357, 102.937782), device->getSceneManager(), &graph), plyr(device, irr::core::vector3df(0,0,0), 15000, 0, PREDATOR, soundEngine){
-
 	graph.selector = selector; 
 	graph.toggleDebugOutput(false);
 	dMode = NONE;
@@ -261,7 +260,7 @@ void ktcGame::update(const irr::ITimer* timer){
 		for(int i = 0; i < playerList.size(); i++)
 		{
 			(*playerList[i]).setInvTimer(5000);
-			(*playerList[i]).setTimer(15000);
+			(*playerList[i]).setTimer(45000);
 		}
 		//Set last time for offset
 		this->setLastTime(timer->getTime());	
@@ -269,7 +268,7 @@ void ktcGame::update(const irr::ITimer* timer){
 		GameStateMachine->ChangeState(RoundBreak::getInstance());
 	}*/
 
-	
+	/*
 	if(agent2.getPlayerType() == PREY) 
 		std::cout << "I'm an agent and i'm PREY\n";
 	else std::cout << "I'm an agent and i'm a PREDATOR\n";
@@ -277,7 +276,7 @@ void ktcGame::update(const irr::ITimer* timer){
 	if(plyr.getPlayerType() == PREY) 
 		std::cout << "I'm a player and i'm PREY\n";
 	else std::cout << "I'm a player and i'm a PREDATOR\n";
-	
+	*/	
 	
 	device->getVideoDriver()->beginScene(true, true, video::SColor(255,100,101,140));
 
@@ -329,13 +328,13 @@ void ktcGame::update(const irr::ITimer* timer){
 		#endif
 
 		//Gun Mechanics - Make sure animation is complete
-		if(plyr.getGun().isReady()){
+		if(plyr.getGun().isReady() && plyr.getPlayerType() == PREDATOR){
 			MessageHandler::getInstance()->postMessage(KTC_PLAYER_LEFT_MOUSE_CLICK, 0, this, &plyr.getGun(), timer);
 	
 
 				
 			//Make sure gun has passed the firing time limitation
-			if(display->getGunReady()){
+			//if(display->getGunReady()){
 				for(int i = 0; i < entities.size(); i++){
 					if(this->pointing() == entities[i]->getSceneNode()){
 						MessageHandler::getInstance()->postMessage(KTC_KILL, 0, this, entities[i], device->getTimer());
@@ -343,11 +342,11 @@ void ktcGame::update(const irr::ITimer* timer){
 						break;
 					}
 				}
-			}
+			//}
 		}
 
 
-		if(this->pointing() == can.getSceneNode() && (plyr.getSceneNode()->getPosition() - can.getSceneNode()->getPosition()).getLength() <= 100.0f){
+		if(plyr.getPlayerType() == PREY && this->pointing() == can.getSceneNode() && (plyr.getSceneNode()->getPosition() - can.getSceneNode()->getPosition()).getLength() <= 100.0f){
 			for(int i = 0; i < entities.size(); i++){
 				MessageHandler::getInstance()->postMessage(KTC_REVIVE, 0, this, entities[i], device->getTimer());
 			}
