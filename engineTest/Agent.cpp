@@ -42,7 +42,7 @@ GamePlayer* Agent::getSpottedAgent(){
 		//should be closest non safe
 		if(agt->isSafe() && agt->getSceneNode() == this->getSceneNode())continue;
 		if(((agt->getSceneNode()->getPosition() - this->getSceneNode()->getPosition()).getLength() < sDist)){
-			
+			if( ! agt->getSceneNode()->isVisible())continue; // if the player dies, bug occurs
 			sDist = (agt->getPosition() - this->getSceneNode()->getPosition()).getLength();
 			tAgt = agt;
 		
