@@ -59,6 +59,9 @@ plyr(device, irr::core::vector3df(0,0,0), 15000, 0, PREY)
 
 	//Instantiate the Irrlicht Engine Device
 	this->device = device;
+
+	//set up state machine
+	GameStateMachine = new StateMachine<ktcGame>(*this);
 	
 	plyr.setSpeed();
 	playerList.push_back(&plyr);
@@ -130,9 +133,13 @@ plyr(device, irr::core::vector3df(0,0,0), 15000, 0, PREY)
 	entities.push_back(&agent2);
 	agent2.setSpeed();
 	playerList.push_back(&agent2);
-	
 
-	//camera = 
+	//Initialize game into Pre-Play State and sync the clock	
+	this->GetFSM()->SetCurrentState(PrePlay::getInstance());
+	this->GetFSM()->StartCurrentState();
+	this->setLastTime(device->getTimer()->getTime());	
+
+	//camera =  
 	//smgr->addCameraSceneNodeFPS();// addCameraSceneNodeFPS();
 
 	//CPTODO: REPLACE HARD CODED CONSTANT WITH SOMETHING BETTER
@@ -228,10 +235,15 @@ void ktcGame::update(const irr::ITimer* timer){
 	//if time is up, then round robin shit so that we get new predator and prey
 	if(plyr.pl_time.getTime() <= 0){
 		RoundRobin(playerList);
-		for(int i = 0; i < playerList.size(); i++){
+		for(int i = 0; i < playerList.size(); i++)
+		{
 			(*playerList[i]).setInvTimer(5000);
 			(*playerList[i]).setTimer(15000);
 		}
+		//Set last time for offset
+		this->setLastTime(timer->getTime());	
+		//Change to Play State		
+		GameStateMachine->ChangeState(RoundBreak::getInstance());
 	}
 
 	

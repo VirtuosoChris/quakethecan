@@ -14,6 +14,9 @@ private:
 
 	int x1Bar, y1Bar, x2Bar, y2Bar;
 
+	enum {PRE_PLAY,PLAY,PAUSE,BREAK,END_GAME};	
+	int gameState;
+
 	int	maxShotTimerBarValue; //size of the timer bar
 	int	roundTimer;			  //Current Round Time, updated by clock function
 	double deltaShotTimerBar;  //difference scalar
@@ -59,7 +62,7 @@ public:
    void updateRoundTimer(irr::u32 numMins, irr::u32 numSecsOrder2, irr::u32 numSecsOrder1); //changes game timer value
 
    void setVideoDriver (video::IVideoDriver* videoDriver);
-   //void setGameContext (ktcGame *game);
+   inline void setGameState(int stateToSet) {gameState = stateToSet;}
    void loadTextures(); //loads all relevant textures into private member variables
    void setGunReady(bool ready); //sets gun Readiness
    bool getGunReady(); //returns true if gun is ready to be fired, false otherwise

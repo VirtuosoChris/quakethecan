@@ -228,7 +228,8 @@ int main(int, char**){
 		
 		//run update on the message handler to send any delayed messges that have passed their time stamp
 		MsgHandler->update(device->getTimer());
-		game.update(device->getTimer());
+		//game.update(device->getTimer());
+		game.GetFSM()->update(device->getTimer());
 
 		//this has been taken out for planning based on menu system 
 		guienv->drawAll();
