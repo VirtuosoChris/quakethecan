@@ -47,6 +47,6 @@ void Timer::convert(){
 
 	rest = inter % 1000;
 
-	//cout << "\n" << min << ": " << sec << ": " << rest << "\n";
+	cout << "\n" << min << ": " << sec << ": " << rest << "\n";
 }
 	

@@ -34,56 +34,56 @@ gameHUD::~gameHUD()
 }
 
 void gameHUD::render(){
+	
+	//status bar variation
+	float delta; 
+	
+	//changes the bar value from X to Y smoothly
+	if((int)deltaShotTimerBar != (int)shotTimerBarValue){
+		delta = shotTimerBarValue - deltaShotTimerBar;
+		if(delta > 0)
+			shotTimerBarValue -= 0.2;
+		if(delta < 0)
+			shotTimerBarValue += 0.2;
+	}
 
-   float delta; //status bar variation
+	//draw the score Table	
+	driver->draw2DImage(ScoreTextures[0], core::position2d<s32>((screenX)-192, (screenY/24)), core::rect<s32>(0,0,192,92), 0, video::SColor(255,255,255,255), true);
+	driver->draw2DImage(ScoreTextures[1], core::position2d<s32>((screenX)-168, (screenY/24)+60), core::rect<s32>(0,0,96,48), 0, video::SColor(255,255,255,255), true);
+	driver->draw2DImage(ScoreTextures[2], core::position2d<s32>((screenX)-168, (screenY/24)+84), core::rect<s32>(0,0,96,48), 0, video::SColor(255,255,255,255), true);
+	driver->draw2DImage(ScoreTextures[3], core::position2d<s32>((screenX)-168, (screenY/24)+108), core::rect<s32>(0,0,96,48), 0, video::SColor(255,255,255,255), true);
+	driver->draw2DImage(ScoreTextures[4], core::position2d<s32>((screenX)-168, (screenY/24)+132), core::rect<s32>(0,0,96,48), 0, video::SColor(255,255,255,255), true);
+	driver->draw2DImage(ScoreTextures[5], core::position2d<s32>((screenX)-168, (screenY/24)+156), core::rect<s32>(0,0,96,48), 0, video::SColor(255,255,255,255), true);
+	driver->draw2DImage(ScoreTextures[6], core::position2d<s32>((screenX)-200, (screenY/24)+60), core::rect<s32>(0,0,50,50), 0, video::SColor(255,255,255,255), true);
 
-   //changes the bar value from X to Y smoothly
-   if ((int)deltaShotTimerBar != (int)shotTimerBarValue){
-      delta = shotTimerBarValue - deltaShotTimerBar;
-      if (delta > 0)
-         shotTimerBarValue -= 0.2;
-      if (delta < 0)
-         shotTimerBarValue += 0.2;
-   }
+	//draw the clock	
+	driver->draw2DImage(ClockTextures[0], core::position2d<s32>((screenX/24)-36, (screenY/24)), core::rect<s32>(0,0,48,48), 0, video::SColor(255,255,255,255), true);
+	driver->draw2DImage(CharTextures[10], core::position2d<s32>((screenX/24)-12, (screenY/24)), core::rect<s32>(0,0,48,48), 0, video::SColor(255,255,255,255), true);
+	driver->draw2DImage(ClockTextures[1], core::position2d<s32>((screenX/24)+12, (screenY/24)), core::rect<s32>(0,0,48,48), 0, video::SColor(255,255,255,255), true);
+	driver->draw2DImage(ClockTextures[2], core::position2d<s32>((screenX/24)+48, (screenY/24)), core::rect<s32>(0,0,48,48), 0, video::SColor(255,255,255,255), true);
 
-   //draw the score Table	
-   driver->draw2DImage(ScoreTextures[0], core::position2d<s32>((screenX)-192, (screenY/24)), core::rect<s32>(0,0,192,92), 0, video::SColor(255,255,255,255), true);
-   driver->draw2DImage(ScoreTextures[1], core::position2d<s32>((screenX)-168, (screenY/24)+60), core::rect<s32>(0,0,96,48), 0, video::SColor(255,255,255,255), true);
-   driver->draw2DImage(ScoreTextures[2], core::position2d<s32>((screenX)-168, (screenY/24)+84), core::rect<s32>(0,0,96,48), 0, video::SColor(255,255,255,255), true);
-   driver->draw2DImage(ScoreTextures[3], core::position2d<s32>((screenX)-168, (screenY/24)+108), core::rect<s32>(0,0,96,48), 0, video::SColor(255,255,255,255), true);
-   driver->draw2DImage(ScoreTextures[4], core::position2d<s32>((screenX)-168, (screenY/24)+132), core::rect<s32>(0,0,96,48), 0, video::SColor(255,255,255,255), true);
-   driver->draw2DImage(ScoreTextures[5], core::position2d<s32>((screenX)-168, (screenY/24)+156), core::rect<s32>(0,0,96,48), 0, video::SColor(255,255,255,255), true);
-   driver->draw2DImage(ScoreTextures[6], core::position2d<s32>((screenX)-200, (screenY/24)+60), core::rect<s32>(0,0,50,50), 0, video::SColor(255,255,255,255), true);
-
-   //draw the clock	
-   driver->draw2DImage(ClockTextures[0], core::position2d<s32>((screenX/24)-36, (screenY/24)), core::rect<s32>(0,0,48,48), 0, video::SColor(255,255,255,255), true);
-   driver->draw2DImage(CharTextures[10], core::position2d<s32>((screenX/24)-12, (screenY/24)), core::rect<s32>(0,0,48,48), 0, video::SColor(255,255,255,255), true);
-   driver->draw2DImage(ClockTextures[1], core::position2d<s32>((screenX/24)+12, (screenY/24)), core::rect<s32>(0,0,48,48), 0, video::SColor(255,255,255,255), true);
-   driver->draw2DImage(ClockTextures[2], core::position2d<s32>((screenX/24)+48, (screenY/24)), core::rect<s32>(0,0,48,48), 0, video::SColor(255,255,255,255), true);
-
-   //draw the cross hair
-   driver->draw2DImage(GUITextures[1], core::position2d<s32>((screenX/2)-16, (screenY/2)-16), core::rect<s32>(0,0,32,32), 0, video::SColor(255,255,255,255), true);
+	//draw the cross hair
+	driver->draw2DImage(GUITextures[1], core::position2d<s32>((screenX/2)-16, (screenY/2)-16), core::rect<s32>(0,0,32,32), 0, video::SColor(255,255,255,255), true);
        
-   //draws the timer bar according to its value (green for high, decreasing to yellow till red), and some others rectangles for a cool look
-   driver->draw2DImage(GUITextures[0], core::position2d<s32>(screenX - 341, screenY - 73), core::rect<s32>(0,0,341,73), 0, video::SColor(255,255,255,255), true);
+	//draws the timer bar according to its value (green for high, decreasing to yellow till red), and some others rectangles for a cool look
+	driver->draw2DImage(GUITextures[0], core::position2d<s32>(screenX - 341, screenY - 73), core::rect<s32>(0,0,341,73), 0, video::SColor(255,255,255,255), true);
 
-   driver->draw2DRectangle(video::SColor(255, 100, 100, 100), core::rect<s32>((screenX - 305), (screenY - 45), ((maxShotTimerBarValue*2.7)+ (screenX - 305)), (screenY - 25)));
+	driver->draw2DRectangle(video::SColor(255, 100, 100, 100), core::rect<s32>((screenX - 305), (screenY - 45), ((maxShotTimerBarValue*2.7)+ (screenX - 305)), (screenY - 25)));
 
-   driver->draw2DRectangle(video::SColor(255, 125, 125, 125), core::rect<s32>((screenX - 305)+1, (screenY - 45)+1, ((maxShotTimerBarValue*2.7)+ (screenX - 305)-1), (screenY - 25)-1));
+	driver->draw2DRectangle(video::SColor(255, 125, 125, 125), core::rect<s32>((screenX - 305)+1, (screenY - 45)+1, ((maxShotTimerBarValue*2.7)+ (screenX - 305)-1), (screenY - 25)-1));
 
-   driver->draw2DRectangle(video::SColor(255, 150, 150, 150), core::rect<s32>((screenX - 305)+3, (screenY - 45)+3, ((maxShotTimerBarValue*2.7)+ (screenX - 305)-3), (screenY - 25)-3));
+	driver->draw2DRectangle(video::SColor(255, 150, 150, 150), core::rect<s32>((screenX - 305)+3, (screenY - 45)+3, ((maxShotTimerBarValue*2.7)+ (screenX - 305)-3), (screenY - 25)-3));
 
-   driver->draw2DRectangle(core::rect<s32>((screenX - 305)+3, (screenY - 45)+3, ((maxShotTimerBarValue*2.7)+ (screenX - 305)-3), (screenY - 25)-3),
+	driver->draw2DRectangle(core::rect<s32>((screenX - 305)+3, (screenY - 45)+3, ((maxShotTimerBarValue*2.7)+ (screenX - 305)-3), (screenY - 25)-3),
+		
+			video::SColor(255, 255-shotTimerBarValue*2.55, shotTimerBarValue*2.55, 0),
 
-                     video::SColor(255, 255-shotTimerBarValue*2.55, shotTimerBarValue*2.55, 0),
+            video::SColor(255, 255-shotTimerBarValue*2.55, shotTimerBarValue*2.55, 0),
 
-                     video::SColor(255, 255-shotTimerBarValue*2.55, shotTimerBarValue*2.55, 0),
+            video::SColor(255, 255-shotTimerBarValue*2.55, shotTimerBarValue*2.55-150, 0),
 
-                     video::SColor(255, 255-shotTimerBarValue*2.55, shotTimerBarValue*2.55-150, 0),
-
-                     video::SColor(255, 255-shotTimerBarValue*2.55, shotTimerBarValue*2.55-150, 0)); 
-
-} 
+            video::SColor(255, 255-shotTimerBarValue*2.55, shotTimerBarValue*2.55-150, 0)); 
+}
 
 void gameHUD::setShotTimerBarValue(int shotTimerValue){
    deltaShotTimerBar = shotTimerValue;
@@ -124,11 +124,12 @@ void gameHUD::setVideoDriver (video::IVideoDriver* videoDriver)
 	loadTextures();
 }
 
+
 //returns the instance of the gameHUD class
 gameHUD* gameHUD::getInstance(){
-static gameHUD instance;
-
-return &instance;
+	static gameHUD instance;
+	
+	return &instance;
 }
 
 void gameHUD::loadTextures()
@@ -186,7 +187,6 @@ void gameHUD::loadTextures()
    CharTextures[10] = driver->getTexture("../Media/Textures/colon.bmp");
    driver->makeColorKeyTexture(CharTextures[10], video::SColor(0,0,0,0));
 
-   
    //Load textures for score keeping
    //label
    ScoreTextures[0] = driver->getTexture("../Media/Textures/scores.bmp");
@@ -209,7 +209,6 @@ void gameHUD::loadTextures()
    //Gun Identifier
    ScoreTextures[6] = driver->getTexture("../Media/Textures/gun.bmp");
    driver->makeColorKeyTexture(ScoreTextures[6], video::SColor(0,0,0,0));
-
 
    //Initialize clock
    updateRoundTimer(0,0,0);

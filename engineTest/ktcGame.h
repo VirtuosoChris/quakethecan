@@ -15,6 +15,7 @@
 #include "coverObject.h"
 #include "gameHUD.h"
 #include "StateMachine.h"
+#include "GameStates.h"
 #include "player.h"
 
 //#define SPAWN_POINT_CREATOR
@@ -22,7 +23,7 @@ enum debugMode{NONE, MINSPANNINGTREE, FULLGRAPH};
 class ktcGame:public GameEntity{
 
 private:
-
+	
 	//vector of the four AI players and the user as an array of GamePlayer references
 	static std::vector<GamePlayer *> playerList;
 	
@@ -62,18 +63,20 @@ private:
 	std::vector<coverObject*> coverObjectList;	 //scene::ICameraSceneNode *camera;
 
 
-public:
 
+public:
 
 	void displayMinSpanningTree(){dMode = MINSPANNINGTREE; }	
 	void disableDebugOutput(){dMode = NONE; }
 	void displayFullGraph(){dMode = FULLGRAPH;}
 
-	ktcGame(IrrlichtDevice *device,irr::scene::ITriangleSelector*);	virtual void update(const irr::ITimer*);
+	ktcGame(irr::IrrlichtDevice *device,irr::scene::ITriangleSelector*);
+	virtual void update(const irr::ITimer*);
 	virtual bool processMessage(const Message*);
 	virtual irr::scene::ISceneNode* pointing();  
 	virtual irr::scene::ISceneNode* GetCan(irr::scene::ISceneNode* );
 	virtual irr::scene::ISceneNode* GetAgent(irr::scene::ISceneNode* );
+
 
 	std::list<irr::core::vector3df> generateDefenseArc(double startAngleRadians, double endAngleRadians, double radius = 45.0f, double nodeCount = 6); 
 

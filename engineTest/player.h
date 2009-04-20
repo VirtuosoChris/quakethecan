@@ -17,7 +17,7 @@ class player : public GamePlayer{
 
 private:
 	//Camera Scene Node
-	irr::IrrlichtDevice *pl_device;
+	irr::IrrlichtDevice *device;
 	scene::ICameraSceneNode *camera;
 	
 	gunEntity gun;
@@ -27,22 +27,22 @@ private:
 	StateMachine<player> * PlayerStateMachine;
 
 public:
-	void setCameraSpeed(double ns);
+	virtual void setSpeed();
+
+	void gunInit();
 
 	void useSpectatorCamera();
 
 	void useShooterCamera();
 	
-	irr::IrrlichtDevice * getDevice(){ return pl_device; }
+	irr::IrrlichtDevice * getDevice(){ return device; }
 	
 	virtual void setPosition(irr::core::vector3df n);
 
 	
 	player(irr::IrrlichtDevice* dev, irr::core::vector3df sp, Timer tim, Timer inv, GamePlayer_Type T);
 	
-	player(){
-		PlayerStateMachine = 0;
-	}
+	player(){}
 
 	virtual ~player();
 

@@ -1,5 +1,6 @@
 #include "ktcGame.h"
 #include "player.h"
+
 //todo code
 //entities[1]->setPathList(this->generateDefenseArc(0,2*3.14, 120,8));
 
@@ -10,9 +11,6 @@ using namespace irr::scene;
 using namespace irr::core;
 
 using std::cout;
-
-static const float PREDATOR_SPEED = .15f;
-static const float PREY_SPEED = .3f;
 
 //initializing the playerList
 std::vector<GamePlayer *> ktcGame::playerList;
@@ -42,7 +40,7 @@ std::list<irr::core::vector3df> ktcGame::generateDefenseArc(double startAngle, d
 		//a->setPosition(result.back());
 	}
 	
-return result;
+	return result;
 }
 
 
@@ -50,23 +48,21 @@ return result;
 //#define NODE_MESH_GENERATOR //is the program in node mesh generation mode
 //-442,351,-863
 //-528.744751 0.024357 102.937782
-ktcGame::ktcGame(IrrlichtDevice *device, irr::scene::ITriangleSelector* selector):can (device), graph (device, "NODE_LIST.txt","ADJACENCY_LIST.txt","EXCLUDE.txt"), 
-agent2 (Model("../media/chuckie.MD2","../media/Chuckie.pcx", device), irr::core::vector3df(0,0,0), 300000, 10000, PREY, core::vector3df(-528.744751, 0.024357, 102.937782), device->getSceneManager(), &graph),
-plyr(device, irr::core::vector3df(0,0,0), 300000, 0, PREY)
+ktcGame::ktcGame(irr::IrrlichtDevice *device, irr::scene::ITriangleSelector* selector):can (device), graph (device, "NODE_LIST.txt","ADJACENCY_LIST.txt","EXCLUDE.txt"), 
+agent2 (Model("../media/chuckie.MD2","../media/Chuckie.pcx", device), irr::core::vector3df(0,0,0), 15000, 10000, PREY, core::vector3df(-528.744751, 0.024357, 102.937782), device->getSceneManager(), &graph), 
+plyr(device, irr::core::vector3df(0,0,0), 15000, 0, PREY)
 {
-	
-graph.selector = selector; 
-graph.toggleDebugOutput(false);
+
+	graph.selector = selector; 
+	graph.toggleDebugOutput(false);
 	dMode = NONE;
-	
+
 	//Instantiate the Irrlicht Engine Device
 	this->device = device;
-
-	//Game now has their own timer
-	round_time.setTime(500000);
-
-	plyr.setCameraSpeed(PREY_SPEED);
+	
+	plyr.setSpeed();
 	playerList.push_back(&plyr);
+	
 	
 	//Instantiate the Irrlicht Engine Scene Manager
 	smgr = device->getSceneManager();
@@ -75,9 +71,6 @@ graph.toggleDebugOutput(false);
 	this->display = gameHUD::getInstance();
 
 	CHUCKIE = agent2.getModel();
-
-
-
 	
 	FILE* fp = fopen("SPAWN_POINTS.txt", "r");
 	if(fp){
@@ -91,156 +84,129 @@ graph.toggleDebugOutput(false);
 			//b->setMaterialFlag(irr::video::EMF_LIGHTING, true);
 			//b->setPosition(irr::core::vector3df(a[0], a[1], a[2]));
 		}
-	
 		fclose(fp);
-}
-
-fp = fopen("COVER_OBJECTS.txt", "r");
-if(fp){
-float a[3];
-while(!feof(fp)){
-	fscanf(fp, "%f %f %f\n", a, &a[1], &a[2]);
-	this->coverObjectList.push_back(new coverObject(vector3df(a[0], a[1], a[2]), device));
+	}
 	
 	
-}
-fclose(fp);
-}
+	fp = fopen("COVER_OBJECTS.txt", "r");
+	
+	if(fp){
+		float a[3];
+		while(!feof(fp)){
+			fscanf(fp, "%f %f %f\n", a, &a[1], &a[2]);
+			this->coverObjectList.push_back(new coverObject(vector3df(a[0], a[1], a[2]), device));
+		}
+		
+		fclose(fp);
+	}
+	
+	else cout << "Bad pointer.\n";
 
-else cout << "Bad pointer.\n";
 
 	//can=(device);
 	//gun = gunEntity(device, camera);
 	
-/****************LOAD IN MODELS*******************************/
+	/****************LOAD IN MODELS*******************************/
  
- CARTMAN  = createModel("../media/ERIC.MD2","../media/ERIC.pcx",device, 1.0f);
- CYBERDEMON = createModel("../media/cyber.md2","../media/cyber.pcx",device,3.0f);
-
-
-//agent2.setPosition(this->spawnPointList[2]);
-//agent2.getSceneNode()->setPosition(this->spawnPointList[2]);
+	CARTMAN  = createModel("../media/ERIC.MD2","../media/ERIC.pcx",device, 1.0f);
+	CYBERDEMON = createModel("../media/cyber.md2","../media/cyber.pcx",device,3.0f);
 
 
 
-//Agent* agent3 = new Agent(CARTMAN, this->spawnPointList[2], device->getSceneManager(), PREY, &graph);
+	Agent::setAgentList(&entities);
+	Agent::setCoverObjectList(&coverObjectList);
 
-//agent3->setPosition(this->spawnPointList[2]);
-//agent3->GetFSM()->ChangeState(Patrol::GetInstance());
-//agent3->createCollisionAnimator(selector, smgr);
-//entities.push_back(agent3);
+	agent2.setIt(&plyr);
+	agent2.setSpotted(&plyr);
 
+	agent2.getSceneNode()->setPosition(spawnPointList[2]);
+	agent2.setPosition(spawnPointList[2]);
 
-Agent::setAgentList(&entities);
-Agent::setCoverObjectList(&coverObjectList);
+	agent2.createCollisionAnimator(selector, smgr);
+	agent2.GetFSM()->ChangeState(Hide::GetInstance());
 
-agent2.setIt(&plyr);
-agent2.setSpotted(&plyr);
+	agent2.setSpawnPoint(spawnPointList[2]);
 
-agent2.getSceneNode()->setPosition(spawnPointList[2]);
-agent2.setPosition(spawnPointList[2]);
-
-agent2.createCollisionAnimator(selector, smgr);
-agent2.GetFSM()->ChangeState(Hide::GetInstance());
-
- entities.push_back(&agent2);
- playerList.push_back(&agent2);
-
-
-
- //camera = 
-//	 smgr->addCameraSceneNodeFPS();// addCameraSceneNodeFPS();
-
- //CPTODO: REPLACE HARD CODED CONSTANT WITH SOMETHING BETTER
- //camera->setPosition(core::vector3df(-280,288,-830));
-
-plyr.setSpawnPoint(spawnPointList[0]);
-plyr.getSceneNode()->setPosition( spawnPointList[0] );
-
-//agent2.createPatrolRoute(&graph);
-
-scene::ISceneNodeAnimator *nodeAnimator = 
-	smgr->createCollisionResponseAnimator(selector,//geometry for collision 
-	plyr.getSceneNode(), //scene node to apply collision to/	
-	CHUCKIE.mesh->getBoundingBox().getExtent(),
-	core::vector3df(0,-10,0),//gravity 
-	CHUCKIE.mesh->getBoundingBox().getCenter()//core::vector3df(0,30,0)
-	); //collision volume position
-if(!nodeAnimator){throw new std::string("Error creating node animator");}
-plyr.getSceneNode()->addAnimator(nodeAnimator);
- nodeAnimator->drop();
-
-
- plyr.getSceneNode()->addAnimator(
-					smgr->createCollisionResponseAnimator(
-					smgr->createTriangleSelectorFromBoundingBox(((irr::scene::IAnimatedMeshSceneNode*)agent2.getSceneNode())),plyr.getSceneNode(),((irr::scene::IAnimatedMeshSceneNode*)agent2.getSceneNode())->getBoundingBox().getExtent(), vector3df(0,0,0),((irr::scene::IAnimatedMeshSceneNode*)agent2.getSceneNode())->getBoundingBox().getCenter())
-					);
-
-
-//make the camera collide with cover
-for(int i = 0; i < this->coverObjectList.size(); i++){
-
+	entities.push_back(&agent2);
+	agent2.setSpeed();
+	playerList.push_back(&agent2);
 	
+
+	//camera = 
+	//smgr->addCameraSceneNodeFPS();// addCameraSceneNodeFPS();
+
+	//CPTODO: REPLACE HARD CODED CONSTANT WITH SOMETHING BETTER
+	//camera->setPosition(core::vector3df(-280,288,-830));
+
+	plyr.setSpawnPoint(spawnPointList[0]);
+	plyr.getSceneNode()->setPosition( spawnPointList[0] );
+
+	//agent2.createPatrolRoute(&graph);
+
+	scene::ISceneNodeAnimator *nodeAnimator = 
+		smgr->createCollisionResponseAnimator(selector,//geometry for collision 
+		plyr.getSceneNode(), //scene node to apply collision to/	
+		CHUCKIE.mesh->getBoundingBox().getExtent(),
+		core::vector3df(0,-10,0),//gravity 
+		CHUCKIE.mesh->getBoundingBox().getCenter()//core::vector3df(0,30,0)
+		); //collision volume position
+
+	if(!nodeAnimator){throw new std::string("Error creating node animator");}
+	plyr.getSceneNode()->addAnimator(nodeAnimator);
+	nodeAnimator->drop();
+
+
 	plyr.getSceneNode()->addAnimator(
-					smgr->createCollisionResponseAnimator(
-					smgr->createTriangleSelectorFromBoundingBox(
-					coverObjectList[i]->getSceneNode()),
-					plyr.getSceneNode(),CHUCKIE.mesh->getBoundingBox().getExtent(), 
-					vector3df(0,0,0), 
-					CHUCKIE.mesh->getBoundingBox().getCenter()
-					)
-					);
-
- agent2.getSceneNode()->addAnimator(
-	 	smgr->createCollisionResponseAnimator(
-	smgr->createTriangleSelectorFromBoundingBox(coverObjectList[i]->getSceneNode()),agent2.getSceneNode(),CHUCKIE.mesh->getBoundingBox().getExtent(), vector3df(0,0,0), CHUCKIE.mesh->getBoundingBox().getCenter())
-					);
-
-}
-
-
-for(int i = 0; i < specialWalls.size(); i++){
-
-	//std::cout<<"ASdkksjd\n";
-	plyr.getSceneNode()->addAnimator(
-					smgr->createCollisionResponseAnimator(
-					smgr->createTriangleSelectorFromBoundingBox(
-					specialWalls[i]),
-					plyr.getSceneNode(),CHUCKIE.mesh->getBoundingBox().getExtent(), 
-					vector3df(0,0,0), 
-					CHUCKIE.mesh->getBoundingBox().getCenter()
-					)
-					);
-
- agent2.getSceneNode()->addAnimator(
-	 	smgr->createCollisionResponseAnimator(
-	smgr->createTriangleSelectorFromBoundingBox(specialWalls[i]),agent2.getSceneNode(),CHUCKIE.mesh->getBoundingBox().getExtent(), vector3df(0,0,0), CHUCKIE.mesh->getBoundingBox().getCenter())
-					);
+		smgr->createCollisionResponseAnimator(
+		smgr->createTriangleSelectorFromBoundingBox(((irr::scene::IAnimatedMeshSceneNode*)agent2.getSceneNode())),plyr.getSceneNode(),((irr::scene::IAnimatedMeshSceneNode*)agent2.getSceneNode())->getBoundingBox().getExtent(), vector3df(0,0,0),((irr::scene::IAnimatedMeshSceneNode*)agent2.getSceneNode())->getBoundingBox().getCenter())
+		);
 
 
 
- scene::ISceneNodeAnimator *nodeAnimator = 
-	smgr->createCollisionResponseAnimator(selector,//geometry for collision 
-	specialWalls[i], //scene node to apply collision to/	
-	specialWalls[i]->getBoundingBox().getExtent()
-	,
-	core::vector3df(0,-10,0),//gravity 
-	specialWalls[i]->getBoundingBox().getCenter()//core::vector3df(0,30,0)
-	); //collision volume position
-if(!nodeAnimator){throw new std::string("Error creating node animator");}
-specialWalls[i]->addAnimator(nodeAnimator);
- nodeAnimator->drop();
-
-}
-
-
-
-
-
-//Initialize Player Scoresfor(int x=0 ; x<5 ; x++)	playerScores[x] = 0;}
+	//make the camera collide with cover
+	for(int i = 0; i < this->coverObjectList.size(); i++){
+		plyr.getSceneNode()->addAnimator(
+			smgr->createCollisionResponseAnimator(
+			smgr->createTriangleSelectorFromBoundingBox(
+			coverObjectList[i]->getSceneNode()),
+			plyr.getSceneNode(),CHUCKIE.mesh->getBoundingBox().getExtent(), 
+			vector3df(0,0,0), 
+			CHUCKIE.mesh->getBoundingBox().getCenter() )
+			);
+		
+		agent2.getSceneNode()->addAnimator(
+	 		smgr->createCollisionResponseAnimator(
+				smgr->createTriangleSelectorFromBoundingBox(coverObjectList[i]->getSceneNode()),agent2.getSceneNode(),CHUCKIE.mesh->getBoundingBox().getExtent(), vector3df(0,0,0), CHUCKIE.mesh->getBoundingBox().getCenter() )
+		);
+	}
 
 
+	for(int i = 0; i < specialWalls.size(); i++){
+		plyr.getSceneNode()->addAnimator(
+			smgr->createCollisionResponseAnimator(
+			smgr->createTriangleSelectorFromBoundingBox(
+			specialWalls[i]),
+			plyr.getSceneNode(),CHUCKIE.mesh->getBoundingBox().getExtent(), 
+			vector3df(0,0,0), 
+			CHUCKIE.mesh->getBoundingBox().getCenter() )
+			);
 
+		agent2.getSceneNode()->addAnimator(
+			smgr->createCollisionResponseAnimator(
+			smgr->createTriangleSelectorFromBoundingBox(specialWalls[i]),agent2.getSceneNode(),CHUCKIE.mesh->getBoundingBox().getExtent(), vector3df(0,0,0), CHUCKIE.mesh->getBoundingBox().getCenter())
+			);
+	
+	
+		scene::ISceneNodeAnimator *nodeAnimator = smgr->createCollisionResponseAnimator(selector,//geometry for collision 
+				specialWalls[i], //scene node to apply collision to/	
+				specialWalls[i]->getBoundingBox().getExtent(),
+				core::vector3df(0,-10,0),//gravity 
+				specialWalls[i]->getBoundingBox().getCenter()//core::vector3df(0,30,0)
+				); //collision volume position
+		if(!nodeAnimator){throw new std::string("Error creating node animator");}
+		specialWalls[i]->addAnimator(nodeAnimator);
+		nodeAnimator->drop();
+	}
 
 }
 
@@ -250,7 +216,7 @@ specialWalls[i]->addAnimator(nodeAnimator);
 
 
 void ktcGame::update(const irr::ITimer* timer){
-
+	
 	//update round timer
 	round_time.update(timer);
 
@@ -264,11 +230,11 @@ void ktcGame::update(const irr::ITimer* timer){
 		RoundRobin(playerList);
 		for(int i = 0; i < playerList.size(); i++){
 			(*playerList[i]).setInvTimer(5000);
-			(*playerList[i]).setTimer(60000);
+			(*playerList[i]).setTimer(15000);
 		}
 	}
 
-	/*
+	
 	if(agent2.getPlayerType() == PREY) 
 		std::cout << "I'm an agent and i'm PREY\n";
 	else std::cout << "I'm an agent and i'm a PREDATOR\n";
@@ -276,138 +242,95 @@ void ktcGame::update(const irr::ITimer* timer){
 	if(plyr.getPlayerType() == PREY) 
 		std::cout << "I'm a player and i'm PREY\n";
 	else std::cout << "I'm a player and i'm a PREDATOR\n";
-	*/
-
-
-//	core::line3d<irr::f32> line;
-//	line.start = plyr.getSceneNode()->getPosition();
-	//line.end = //line.start +  vector3df(0,1000,0);
 	
-//	for(int i = 0; i < this->coverObjectList.size();i++){
-//		line.end = this->coverObjectList[i]->getSceneNode()->getBoundingBox().getCenter();
-//		
-//		if(this->coverObjectList[i]->getSceneNode()->getBoundingBox().intersectsWithLine(line)){
-//			std::cout<<"ZOMG INTERSECTED\n";
-//
-//			if(this->coverObjectList[i]->getSceneNode()->getBoundingBox().isEmpty()){
-//				std::cout<<"WTFLOL\n";
-//			}
-//
-//		//	this->coverObjectList[i]->getSceneNode()->getBoundingBox().
-//		}
-//	}
+	
+	device->getVideoDriver()->beginScene(true, true, video::SColor(255,100,101,140));
 
+	smgr->drawAll();  //draw 3d objects
+	display->render();
 
+	//for(int i = 0; i < this->coverObjectList.size(); i++){
+	//coverObjectList[i]->getCoverPosition(agent2.getIt());
+	//}
 
-device->getVideoDriver()->beginScene(true, true, video::SColor(255,100,101,140));
+	plyr.getGun().render();
 
-smgr->drawAll();  //draw 3d objects
-display->render();
+	//end drawing 
+	device->getVideoDriver()->endScene();
 
-
-
+	if(InputHandler::getInstance()->unprocessedMouseMessageLMB){
 		
-//for(int i = 0; i < this->coverObjectList.size(); i++){
-//	coverObjectList[i]->getCoverPosition(agent2.getIt());
-//	}
+		#ifdef NODE_MESH_GENERATOR
+		graph.addNode(camera->getPosition());
+		#endif
 
-plyr.getGun().render();
-
-device->getVideoDriver()->endScene();//end drawing 
-
-if(InputHandler::getInstance()->unprocessedMouseMessageLMB){
-
-
-#ifdef NODE_MESH_GENERATOR
-			graph.addNode(camera->getPosition());
-#endif
-
-#ifdef SPAWN_POINT_CREATOR
-			this->spawnPointList.push_back(camera->getPosition());
-
-			
-			FILE *fp = fopen("SPAWN_POINTS.txt", "a");
-	 
-			fprintf(fp, "%f %f %f\n", this->camera->getPosition().X, this->camera->getPosition().Y, this->camera->getPosition().Z);
-			
-			fclose(fp);
-#endif
+		#ifdef SPAWN_POINT_CREATOR
+		this->spawnPointList.push_back(camera->getPosition());
+		FILE *fp = fopen("SPAWN_POINTS.txt", "a");
+		fprintf(fp, "%f %f %f\n", this->camera->getPosition().X, this->camera->getPosition().Y, this->camera->getPosition().Z);
+		fclose(fp);
+		#endif
 
 
-#ifdef COVER_OBJECT_GENERATOR
+		#ifdef COVER_OBJECT_GENERATOR
+		irr::scene::ISceneNode* t= smgr->addCubeSceneNode(1);
+		t->setPosition(camera->getPosition());
+		//irr::scene::ILightSceneNode *lightscenenode = smgr->addLightSceneNode(0, irr::core::vector3df(1.25,0,0), irr::video::SColor(255,255, 255, 255),100);
+		//t->addChild(lightscenenode);
+		//irr::scene::ILightSceneNode *lightscenenode2 = smgr->addLightSceneNode(0, irr::core::vector3df(0,0,-1.25), irr::video::SColor(255, 255, 255, 255),100);
+		//t->addChild(lightscenenode2);
+		//irr::scene::ISceneNode* a = smgr->addSphereSceneNode(1);
+		//a->setPosition(irr::core::vector3df(1.1,1.1,1.1));
+		//t->addChild(a);
+		t->setScale(vector3df(50,75,50));
+		coverObjectList.push_back(camera->getPosition());
+		t->setMaterialTexture(0, device->getVideoDriver()->getTexture("../media/crate.jpg"));
+		t->setMaterialTexture(1, device->getVideoDriver()->getTexture("../media/cratebump.jpg"));
+		t->setMaterialFlag(video::EMF_LIGHTING, true);
+		t->setMaterialFlag(video::EMF_FOG_ENABLE, true);
+		t->setMaterialType(video::EMT_LIGHTMAP_LIGHTING_M4);
+		//t->getMaterial(0).AmbientColor = video::SColor(255,25,25,25);
+		//t->getMaterial(1).AmbientColor = video::SColor(255,25,25,25);		
+		#endif
 
-			irr::scene::ISceneNode* t= smgr->addCubeSceneNode(1);
-			t->setPosition(camera->getPosition());
-			//irr::scene::ILightSceneNode *lightscenenode = smgr->addLightSceneNode(0, irr::core::vector3df(1.25,0,0), irr::video::SColor(255,255, 255, 255),100);
-			//t->addChild(lightscenenode);
-			//irr::scene::ILightSceneNode *lightscenenode2 = smgr->addLightSceneNode(0, irr::core::vector3df(0,0,-1.25), irr::video::SColor(255, 255, 255, 255),100);
-			//t->addChild(lightscenenode2);
-			//irr::scene::ISceneNode* a = smgr->addSphereSceneNode(1);
-			//a->setPosition(irr::core::vector3df(1.1,1.1,1.1));
-	//		t->addChild(a);
-			t->setScale(vector3df(50,75,50));
-			coverObjectList.push_back(camera->getPosition());
-			t->setMaterialTexture(0, device->getVideoDriver()->getTexture("../media/crate.jpg"));
-			t->setMaterialTexture(1, device->getVideoDriver()->getTexture("../media/cratebump.jpg"));
-			t->setMaterialFlag(video::EMF_LIGHTING, true);
-			t->setMaterialFlag(video::EMF_FOG_ENABLE, true);
-			t->setMaterialType(video::EMT_LIGHTMAP_LIGHTING_M4);
-		//	t->getMaterial(0).AmbientColor = video::SColor(255,25,25,25);
-			//t->getMaterial(1).AmbientColor = video::SColor(255,25,25,25);
-			
-			
-#endif
-
-//Gun Mechanics - Make sure animation is complete
-if(plyr.getGun().isReady())
-{
-	MessageHandler::getInstance()->postMessage(KTC_PLAYER_LEFT_MOUSE_CLICK, 0, this, &plyr.getGun(), timer);
+		//Gun Mechanics - Make sure animation is complete
+		if(plyr.getGun().isReady()){
+			MessageHandler::getInstance()->postMessage(KTC_PLAYER_LEFT_MOUSE_CLICK, 0, this, &plyr.getGun(), timer);
 	
-	//Make sure gun has passed the firing time limitation
-	if(display->getGunReady())
-	{
-		for(int i = 0; i < entities.size(); i++)
-		{
-			if(this->pointing() == entities[i]->getSceneNode())
-			{
-				MessageHandler::getInstance()->postMessage(KTC_KILL, 0, this, entities[i], device->getTimer());
-				break;
+			//Make sure gun has passed the firing time limitation
+			if(display->getGunReady()){
+				for(int i = 0; i < entities.size(); i++){
+					if(this->pointing() == entities[i]->getSceneNode()){
+						MessageHandler::getInstance()->postMessage(KTC_KILL, 0, this, entities[i], device->getTimer());
+						break;
+					}
+				}
 			}
 		}
-	}
-}
 
 
-if(this->pointing() == can.getSceneNode() && (plyr.getSceneNode()->getPosition() - can.getSceneNode()->getPosition()).getLength() <= 100.0f){
-	for(int i = 0; i < entities.size(); i++){
-	
-		MessageHandler::getInstance()->postMessage(KTC_REVIVE, 0, this, entities[i], device->getTimer());
-	}
-}
-
-
-			InputHandler::getInstance()->unprocessedMouseMessageLMB = false;
+		if(this->pointing() == can.getSceneNode() && (plyr.getSceneNode()->getPosition() - can.getSceneNode()->getPosition()).getLength() <= 100.0f){
+			for(int i = 0; i < entities.size(); i++){
+				MessageHandler::getInstance()->postMessage(KTC_REVIVE, 0, this, entities[i], device->getTimer());
+			}
 		}
-
-
-
+		
+		InputHandler::getInstance()->unprocessedMouseMessageLMB = false;
+	}
+	
 	if(InputHandler::getInstance()->unprocessedMouseMessageRMB){
 		//graph.output();
 
-
-#ifdef COVER_OBJECT_GENERATOR
- FILE *fp = fopen("COVER_OBJECTS.txt", "w");
- for(int i = 0; i < this->coverObjectList.size(); i++){
-		 fprintf(fp, "%f %f %f\n", coverObjectList[i].X, coverObjectList[i].Y, coverObjectList[i].Z);
-	 }
-	fclose(fp);
-#endif
-
-
+		#ifdef COVER_OBJECT_GENERATOR
+		FILE *fp = fopen("COVER_OBJECTS.txt", "w");
+		for(int i = 0; i < this->coverObjectList.size(); i++){
+			fprintf(fp, "%f %f %f\n", coverObjectList[i].X, coverObjectList[i].Y, coverObjectList[i].Z);
+		}
+		fclose(fp);
+		#endif
+		
 		InputHandler::getInstance()->unprocessedMouseMessageRMB = false;
 	}
-
-
 
 	//Toggle the render output of the Debug visible objects
 	if(InputHandler::getInstance()->isTKeyPressed()){
@@ -422,32 +345,28 @@ if(this->pointing() == can.getSceneNode() && (plyr.getSceneNode()->getPosition()
 	can.update(timer);
 	plyr.update(timer);
 
+	#ifndef NODE_MESH_GENERATOR
+	static mapGraph* mintree = graph.minimumSpanningTree(0);
+	//graph.minimumSpanningTree(0)->render(device->getVideoDriver());
+
+	switch(this->dMode){
+		case NONE:	break;
+		case FULLGRAPH:	graph.render(device->getVideoDriver());
+						break;
+		case MINSPANNINGTREE:	mintree->render(device->getVideoDriver());
+								break;
+	}
 	
-
-
-#ifndef NODE_MESH_GENERATOR
-static mapGraph* mintree = graph.minimumSpanningTree(0);
-//graph.minimumSpanningTree(0)->render(device->getVideoDriver());
-
-switch(this->dMode){
-case NONE:break;
-case FULLGRAPH: graph.render(device->getVideoDriver());break;
-case MINSPANNINGTREE: mintree->render(device->getVideoDriver());break;
-}
-
-
-for(int i = 0; i < (int)entities.size();i++){
-			if(entities[i]){
-				entities[i]->update(timer);
-				
-				if(graph.isDebugOutput()){
-			//	entities[i]->drawPieSlices(device->getVideoDriver());
-				}
+	for(int i = 0; i < (int)entities.size();i++){
+		if(entities[i]){
+			entities[i]->update(timer);
+			if(graph.isDebugOutput()){
+				//entities[i]->drawPieSlices(device->getVideoDriver());
 			}
 		}
+	}
 
-
-#endif
+	#endif
 
 	//update all entities
 
@@ -467,25 +386,46 @@ for(int i = 0; i < (int)entities.size();i++){
 	//if(SceneNodeSeen == agent2.getSceneNode()){
 	//	std::cout << "I'm looking at Chuckie;\n";
 	//}
-
-	
-
-
 }
 
 void ktcGame::RoundRobin(std::vector<GamePlayer *> plst){
 	for(int i = 0; i < plst.size(); i++){
+
+		//if i'm a predator, set me to prey
 		if( ( (*plst[i]).getPlayerType() == PREDATOR) && (i+1 != plst.size()) ){
 			(*plst[i]).setPlayerType(PREY);
+			(*plst[i]).setSpeed();
 			//change state to init of pred and prey
 			(*plst[i+1]).setPlayerType(PREDATOR);
+			(*plst[i+1]).setSpeed();
 			break;
 		}
-
+		//if i'm a predator at the end of the list, do special indexing shit 
 		else if( ((*plst[i]).getPlayerType() == PREDATOR) && ( (i+1) == plst.size() ) ){
 			//change state to init of pred and prey
 			(*plst[i]).setPlayerType(PREY);
+			(*plst[i]).setSpeed();
 			(*plst[i% (plst.size() - 1) ]).setPlayerType(PREDATOR);
+			(*plst[i% (plst.size() - 1) ]).setSpeed();
+			break;
+		}
+
+		//if i'm a prey, set me to predator
+		if( ( (*plst[i]).getPlayerType() == PREY) && (i+1 != plst.size()) ){
+			(*plst[i]).setPlayerType(PREDATOR);
+			(*plst[i]).setSpeed();
+			//change state to init of pred and prey
+			(*plst[i+1]).setPlayerType(PREY);
+			(*plst[i+1]).setSpeed();
+			break;
+		}
+		//if i'm a prey at the end of the list, do special indexing shit
+		else if( ((*plst[i]).getPlayerType() == PREY) && ( (i+1) == plst.size() ) ){
+			//change state to init of pred and prey
+			(*plst[i]).setPlayerType(PREDATOR);
+			(*plst[i]).setSpeed();
+			(*plst[i% (plst.size() - 1) ]).setPlayerType(PREY);
+			(*plst[i% (plst.size() - 1) ]).setSpeed();
 			break;
 		}
 	}
@@ -516,7 +456,6 @@ ISceneNode* ktcGame::pointing(){
 
 	return 0;
 
-	
 }
 
 ISceneNode* ktcGame::GetCan(ISceneNode * node){
@@ -537,7 +476,4 @@ ISceneNode* ktcGame::GetAgent(ISceneNode * node){
 
 }
 
-ktcGame::~ktcGame(){
-
-
-}
+ktcGame::~ktcGame(){}

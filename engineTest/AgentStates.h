@@ -5,20 +5,6 @@
 
 class Agent;
 
-//Die state
-
-class Die : public State<Agent>{
-private:Die(){}
-
-public :
-	static Die* GetInstance();
-	virtual void Enter(Agent & agt);
-	virtual void Execute(Agent & agt, const irr::ITimer*);
-	virtual void Exit(Agent & agt);
-	virtual bool ExecuteMessage(Agent &, const Message*);
-};
-
-
 
 //Defend state
 class Defend : public State<Agent>{
@@ -162,6 +148,25 @@ class Act_Orb : public State<Agent>{
 
 		virtual bool ExecuteMessage(Agent &, const Message *msg);
 };
+
+//Die state
+class Die : public State<Agent>{
+
+private:
+	Die(){}
+
+public:
+	static Die* GetInstance();
+	
+	virtual void Enter(Agent & agt);
+	
+	virtual void Execute(Agent & agt, const irr::ITimer*);
+	
+	virtual void Exit(Agent & agt);
+	
+	virtual bool ExecuteMessage(Agent &, const Message*);
+};
+
 
 //Wait state
 class Wait : public State<Agent>{

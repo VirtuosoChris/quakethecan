@@ -7,10 +7,9 @@ using std::cout;
 
 //methods for PrePlay
 PrePlay* PrePlay::getInstance(){
+	static PrePlay only_inst;
 
-  static PrePlay only_inst;
-
-  return &only_inst;
+	return &only_inst;
 }
 
 void PrePlay::Enter(ktcGame & game){
@@ -43,10 +42,9 @@ bool PrePlay::ExecuteMessage(ktcGame & game, const Message *msg){
 
 //methods for Play
 Play* Play::getInstance(){
+	static Play only_inst;
 
-  static Play only_inst;
-
-  return &only_inst;
+	return &only_inst;
 }
 
 void Play::Enter(ktcGame & game){
@@ -78,10 +76,9 @@ bool Play::ExecuteMessage(ktcGame & game, const Message *msg){
 
 //methods for Pause
 Pause* Pause::getInstance(){
-
-  static Pause only_inst;
-
-  return &only_inst;
+	static Pause only_inst;
+	
+	return &only_inst;
 }
 
 void Pause::Enter(ktcGame & game){
@@ -113,10 +110,9 @@ bool Pause::ExecuteMessage(ktcGame & game, const Message *msg){
 
 //methods for RoundBreak
 RoundBreak* RoundBreak::getInstance(){
+	static RoundBreak only_inst;
 
-  static RoundBreak only_inst;
-
-  return &only_inst;
+	return &only_inst;
 }
 
 void RoundBreak::Enter(ktcGame & game){
@@ -148,10 +144,9 @@ bool RoundBreak::ExecuteMessage(ktcGame & game, const Message *msg){
 
 //methods for EndersGame
 EndersGame* EndersGame::getInstance(){
-
-  static EndersGame only_inst;
-
-  return &only_inst;
+	static EndersGame only_inst;
+	
+	return &only_inst;
 }
 
 void EndersGame::Enter(ktcGame & game){
