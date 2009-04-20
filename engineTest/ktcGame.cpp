@@ -48,9 +48,9 @@ std::list<irr::core::vector3df> ktcGame::generateDefenseArc(double startAngle, d
 //#define NODE_MESH_GENERATOR //is the program in node mesh generation mode
 //-442,351,-863
 //-528.744751 0.024357 102.937782
-ktcGame::ktcGame(irr::IrrlichtDevice *device, irr::scene::ITriangleSelector* selector):can (device), graph (device, "NODE_LIST.txt","ADJACENCY_LIST.txt","EXCLUDE.txt"), 
+ktcGame::ktcGame(irr::IrrlichtDevice *device, irr::scene::ITriangleSelector* selector, irrklang::ISoundEngine *soundEngine):can (device), graph (device, "NODE_LIST.txt","ADJACENCY_LIST.txt","EXCLUDE.txt"), 
 agent2 (Model("../media/chuckie.MD2","../media/Chuckie.pcx", device), irr::core::vector3df(0,0,0), 3000000, 10000, PREDATOR, core::vector3df(-528.744751, 0.024357, 102.937782), device->getSceneManager(), &graph), 
-plyr(device, irr::core::vector3df(0,0,0), 3000000, 0, PREY)
+plyr(device, irr::core::vector3df(0,0,0), 3000000, 0, PREY, soundEngine)
 {
 
 	graph.selector = selector; 
@@ -59,6 +59,12 @@ plyr(device, irr::core::vector3df(0,0,0), 3000000, 0, PREY)
 
 	//Instantiate the Irrlicht Engine Device
 	this->device = device;
+
+	//Instantiate the IrrKlang Sound Engine
+	this->soundEngine = soundEngine;
+
+	reviveSound = soundEngine->addSoundSourceFromFile("../media/sounds/effects/yay.wav"); 
+	reviveSound->setDefaultVolume(0.3f);
 
 	//set up state machine
 	GameStateMachine = new StateMachine<ktcGame>(*this);

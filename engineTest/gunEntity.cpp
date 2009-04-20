@@ -5,10 +5,20 @@ using namespace irr::core;
 
 static vector3df previousPos;
 
-gunEntity::gunEntity(irr::IrrlichtDevice *device, irr::scene::ICameraSceneNode *camera){
+gunEntity::gunEntity(irr::IrrlichtDevice *device, irr::scene::ICameraSceneNode *camera, irrklang::ISoundEngine *soundEngine){
 	
 	animationReady = true;
 	this->device = device;
+
+	//Set the sound the gun makes when it fires
+	//soundEngine->addSoundSourceFromFile("../media/sounds/effects/gun_shotgun2.wav"); 
+	//gunFiring->setDefaultVolume(0.3f);
+
+	//set sound engine to private variable
+	sound = soundEngine;
+
+	gunFiring = sound->addSoundSourceFromFile("../media/sounds/effects/gun_shotgun2.wav"); 
+	gunFiring->setDefaultVolume(0.3f);
 
 	//set time gun was last fired
 	lastFired = device->getTimer()->getTime();
@@ -90,6 +100,9 @@ bool gunEntity::processMessage(const Message* m){
 				
 				gun->setMD2Animation(irr::scene::EMAT_STAND);
 				gun->setAnimationSpeed(60);
+
+				//play gun firing sound
+				sound->play2D(gunFiring);
 			}
 			//std::cout<<"did stuff\n";\
 

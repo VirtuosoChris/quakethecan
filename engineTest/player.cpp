@@ -51,7 +51,7 @@ void player::setPosition(irr::core::vector3df n){
 }
 
 	
-player::player(irr::IrrlichtDevice* dev, irr::core::vector3df sp, Timer tim, Timer inv, GamePlayer_Type T) : device(dev), camera (dev->getSceneManager()->addCameraSceneNodeFPS()) , gun (dev, camera), GamePlayer(sp, tim, inv, T){
+player::player(irr::IrrlichtDevice* dev, irr::core::vector3df sp, Timer tim, Timer inv, GamePlayer_Type T,irrklang::ISoundEngine *soundEngine) : device(dev), camera (dev->getSceneManager()->addCameraSceneNodeFPS()) , gun (dev, camera, soundEngine), GamePlayer(sp, tim, inv, T){
 	ppos = camera->getPosition();
 	this->mynodep = camera;
 	lastUpdate = 0;

@@ -231,7 +231,7 @@ int main(int, char**){
 	GamePlayer::setPlayerList(0);
 
 	srand((unsigned int)device);
-	ktcGame game(device, selector);
+	ktcGame game(device, selector, soundEngine);
 
 
 	/*******************************************************/

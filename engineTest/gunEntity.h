@@ -15,11 +15,14 @@ public:
 	irr::scene::ICameraSceneNode *camera;
 	irr::core::vector3df basePosition;
 	irr::IrrlichtDevice *device;
+	irrklang::ISoundEngine *sound;
+	irrklang::ISoundSource* gunFiring;
 	bool animationReady;
 
 	inline irr::scene::IAnimatedMeshSceneNode* getSceneNode(){ return gun; }
 	//gunEntity(){};
-	gunEntity(irr::IrrlichtDevice *device, irr::scene::ICameraSceneNode *camera);
+	//gunEntity(irr::IrrlichtDevice *device, irr::scene::ICameraSceneNode *camera);
+	gunEntity(irr::IrrlichtDevice *device, irr::scene::ICameraSceneNode *camera, irrklang::ISoundEngine *soundEngine);
 	virtual void update(const irr::ITimer*);
 	virtual bool processMessage(const Message*);
 	void render();

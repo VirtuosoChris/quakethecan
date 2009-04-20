@@ -57,6 +57,8 @@ private:
 	irr::IrrlichtDevice *device;
 	irr::scene::ISceneManager* smgr;
 	irr::gui::IGUIEnvironment* gameUI;
+	irrklang::ISoundEngine *soundEngine;
+	irrklang::ISoundSource* reviveSound;
 
 	//HUD
 	gameHUD* display;
@@ -78,7 +80,7 @@ public:
 	void disableDebugOutput(){dMode = NONE; }
 	void displayFullGraph(){dMode = FULLGRAPH;}
 	void RoundRobin(std::vector<GamePlayer *> plst);
-	ktcGame(irr::IrrlichtDevice *device,irr::scene::ITriangleSelector*);
+	ktcGame(irr::IrrlichtDevice *device,irr::scene::ITriangleSelector*, irrklang::ISoundEngine *soundEngine);
 	~ktcGame();
 	virtual void update(const irr::ITimer*);
 	virtual bool processMessage(const Message*);
@@ -102,6 +104,7 @@ public:
 	inline irr::IrrlichtDevice * getDevice() {return device;}
 	inline irr::scene::ISceneManager* getSceneManager() const {return smgr;}
 	inline irr::gui::IGUIEnvironment* getGameUI() const {return gameUI;}
+	inline irrklang::ISoundEngine * getSoundEngine() {return soundEngine;}
 	inline gameHUD* getGameHUD() {return display;}
 	inline canEntity * getCan() {return &can;}
 	inline mapGraph * getMapGraph() {return &graph;}

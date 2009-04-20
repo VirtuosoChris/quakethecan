@@ -2,6 +2,7 @@
 #define GAMEENTITY
 
 #include <irrlicht.h>
+#include <irrklang.h>
 
 #include <vector>
 

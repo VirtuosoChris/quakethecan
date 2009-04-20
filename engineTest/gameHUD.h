@@ -13,6 +13,8 @@ private:
 	video::IVideoDriver* driver;
 
 	int x1Bar, y1Bar, x2Bar, y2Bar;
+	int player1Score, player2Score, player3Score, player4Score, player5Score;
+	int whoHasGun;
 
 	enum {PRE_PLAY,PLAY,PAUSE,BREAK,END_GAME};	
 	int gameState;
@@ -49,7 +51,18 @@ private:
    //	0   : Label
    //	1-5	: Player Identifiers
    //	6	: gun identifier
-   video::ITexture* ScoreTextures[7];
+   //   7   : blank (transparent)
+   //  10-19: Score Numbers 0-9
+   video::ITexture* ScoreTextures[20];
+
+   //Texture Storage for each player's score
+   //Assignments:
+   //   0-5 : Player's score in order of increasing magnitude
+   video::ITexture* Player1ScoreTextures[6];
+   video::ITexture* Player2ScoreTextures[6];
+   video::ITexture* Player3ScoreTextures[6];
+   video::ITexture* Player4ScoreTextures[6];
+   video::ITexture* Player5ScoreTextures[6];
 
    gameHUD(); //constructor
    ~gameHUD(); //destructor :O
@@ -63,9 +76,14 @@ public:
 
    void setVideoDriver (video::IVideoDriver* videoDriver);
    inline void setGameState(int stateToSet) {gameState = stateToSet;}
+   inline void setGunMarker(int playerNum) {whoHasGun = playerNum;}
+   inline int getGunMarker() {return whoHasGun;}
    void loadTextures(); //loads all relevant textures into private member variables
    void setGunReady(bool ready); //sets gun Readiness
    bool getGunReady(); //returns true if gun is ready to be fired, false otherwise
+   void setScores(int playerNum, int score);
+   void drawScores(); //renders the scoreboard
+   void drawMarker(int playerNum);
 }; 
 
 #endif

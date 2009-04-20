@@ -21,6 +21,13 @@ void PrePlay::Enter(ktcGame & game){
 	game.getPreTime()->setTime(5000);
 	game.getPreTime()->setLastTime(game.getDevice()->getTimer()->getTime());
 	game.getGameHUD()->setGameState(0);
+
+	//re-initialize player scores
+	game.getGameHUD()->setScores(1,0);
+	game.getGameHUD()->setScores(2,0);
+	game.getGameHUD()->setScores(3,0);
+	game.getGameHUD()->setScores(4,0);
+	game.getGameHUD()->setScores(5,0);
 }
 
 void PrePlay::Execute(ktcGame & game, const irr::ITimer* timer){
@@ -77,6 +84,7 @@ void Play::Enter(ktcGame & game){
 	game.getRoundTime()->setTime(20000);
 	game.getRoundTime()->setLastTime(game.getDevice()->getTimer()->getTime());
 	game.getGameHUD()->setGameState(1);
+
 	//use MsgHandler->postMessage() here to post a message to all other players (use for loop or some shit)
 }
 
@@ -189,6 +197,7 @@ void RoundBreak::Execute(ktcGame & game, const irr::ITimer* timer){
 
 void RoundBreak::Exit(ktcGame & game){
 	cout << "Exiting RoundBreak state.\n";
+	game.getGameHUD()->setGunMarker(game.getGameHUD()->getGunMarker()+1);
 }
 
 bool RoundBreak::ExecuteMessage(ktcGame & game, const Message *msg){

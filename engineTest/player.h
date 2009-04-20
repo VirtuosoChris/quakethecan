@@ -19,6 +19,7 @@ private:
 	//Camera Scene Node
 	irr::IrrlichtDevice *device;
 	scene::ICameraSceneNode *camera;
+	irrklang::ISoundEngine *soundEngine;
 	
 	gunEntity gun;
 	vector3df ppos; 
@@ -40,8 +41,9 @@ public:
 	virtual void setPosition(irr::core::vector3df n);
 
 	
-	player(irr::IrrlichtDevice* dev, irr::core::vector3df sp, Timer tim, Timer inv, GamePlayer_Type T);
-	
+	//player(irr::IrrlichtDevice* dev, irr::core::vector3df sp, Timer tim, Timer inv, GamePlayer_Type T);
+	player(irr::IrrlichtDevice* dev, irr::core::vector3df sp, Timer tim, Timer inv, GamePlayer_Type T, irrklang::ISoundEngine *soundEngine);
+
 	player(){}
 
 	virtual ~player();
