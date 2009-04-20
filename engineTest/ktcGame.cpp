@@ -445,10 +445,10 @@ void ktcGame::RoundRobin(std::vector<GamePlayer *> plst){
 						 (Agent*)(&((*plst[i])));
 					 if((*plst[i]).getPlayerType() == PREDATOR){
 						// exit(0);
-						 ap->GetFSM()->ChangeState(Patrol::GetInstance());
+						 ap->GetFSM()->ChangeState(Hide::GetInstance());
 					 }else{
 						 //exit(0);
-					 	 ap->GetFSM()->ChangeState(Patrol::GetInstance());
+					 	 ap->GetFSM()->ChangeState(Hide::GetInstance());
 					 }
 
 

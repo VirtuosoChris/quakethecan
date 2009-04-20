@@ -116,6 +116,7 @@ void Patrol::Execute(Agent & agt, const irr::ITimer* timer){
 
 void Patrol::Exit(Agent & agt){
 	//cout << "Exiting Patrol state.\n";
+	
 	agt.getPathList().clear();
 }
 
@@ -196,6 +197,7 @@ double  distSP = (sp->getSceneNode()->getPosition() - agt.getSceneNode()->getPos
 			//do stuff
 		
 		agt.isFiring = true;
+		agt.flavorText->setText(stringw("BANG!").c_str());
 		
 		mynodep->setLoopMode(false);
 		mynodep->setMD2Animation(scene::EMAT_ATTACK);
@@ -214,6 +216,7 @@ double  distSP = (sp->getSceneNode()->getPosition() - agt.getSceneNode()->getPos
 
 	if(agt.isFiring && mynodep->getFrameNr() >= mynodep->getEndFrame()){
 		mynodep->setMD2Animation(scene::EMAT_RUN);
+		agt.flavorText->setText(stringw("I'm IT!").c_str());
 		agt.isFiring = false;
 		mynodep->setLoopMode(true);
 		std::cout<<"Changing animation\n";
@@ -227,9 +230,21 @@ double  distSP = (sp->getSceneNode()->getPosition() - agt.getSceneNode()->getPos
 
 	if(agt.getSpottedAgent() &&!agt.isFiring) {
 		
-		if(distSP > 750/8){
+		if(distSP > 750/4){
 		//agt.walk(2*agt.seek(agt.getSpottedAgent()->getPosition())+ agt.wallAvoidance());
 		agt.walk(agt.seek(agt.getSpottedAgent()->getSceneNode()->getPosition())+ agt.wallAvoidance());
+
+		//if(!agt.MOVING){
+		//	agt.MOVING = true;
+			//mynodep->setMD2Animation(scene::EMAT_RUN);
+		//}
+
+
+		//}else{
+		//	if(agt.MOVING){
+		//		agt.MOVING = false;
+		//	//	mynodep->setMD2Animation(scene::EMAT_STAND);
+		//	}
 		}
 	}
 
@@ -237,7 +252,9 @@ double  distSP = (sp->getSceneNode()->getPosition() - agt.getSceneNode()->getPos
 }
 
 void Pursue::Exit(Agent & agt){
+	agt.defendTime = 0;
 	//cout << "Exiting Persue state.\n";
+	agt.flavorText->setText(stringw("I'm IT!").c_str());
 }
 
 bool Pursue::ExecuteMessage(Agent & agt, const Message *msg){
@@ -268,6 +285,10 @@ Hide* Hide::GetInstance(){
 }
 
 void Hide::Enter(Agent & agt){
+
+	agt.flavorText->setText(stringw(" ").c_str());
+
+
 	cout << "Entering Hide state.\n";
 	//use MsgHandler->postMessage() here to post a message to all other players (use for loop or some shit)
 	
@@ -291,6 +312,7 @@ void Hide::Enter(Agent & agt){
 	int i = agt.getCoverObjectList()->size();
 	i = abs(rand()%i);
 
+
 	agt.setMyCoverObject((*agt.getCoverObjectList())[i]);
 	agt.newTargetLocationSpannablePath(agt.getMyCoverObject()->getPosition());
 	//getCoverPosition(agt.getIt()));//case when path list is empty but not close enough**********
@@ -298,6 +320,12 @@ void Hide::Enter(Agent & agt){
 }
 
 void Hide::Execute(Agent & agt, const irr::ITimer* timer){
+	//cout << "Executing Hide state.\n";
+
+	if(agt.getInvTimer().getTime() >0){
+		agt.flavorText->setText( stringw( agt.getInvTimer().getTime()/1000).c_str());
+	}
+
 	//cout << "Executing Hide state.\n";
 
 
@@ -453,13 +481,13 @@ void Hide::Execute(Agent & agt, const irr::ITimer* timer){
 		//agt.setPosition( irr::core::vector3df(newPos.X, yr, newPos.Z));
 	}
 
-
 	//agt.walk(agt.followPath(timer));
 
 }
 
 void Hide::Exit(Agent & agt){
 //	cout << "Exiting Hide state.\n";
+	agt.defendTime = 0;
 }
 
 bool Hide::ExecuteMessage(Agent & agt, const Message *msg){
@@ -544,6 +572,8 @@ Act_Orb* Act_Orb::GetInstance(){
 //state to go kick the can
 void Act_Orb::Enter(Agent & agt){
 
+	agt.flavorText->setText(stringw(" ").c_str());
+
 
 	if(!agt.getGraph() || !agt.getCan() || !agt.getSceneNode()){
 		
@@ -559,6 +589,14 @@ void Act_Orb::Enter(Agent & agt){
 void Act_Orb::Execute(Agent & agt, const irr::ITimer* timer){
 //	cout << "Executing Act_Orb state.\n";
 //  if the enemy spots me, i'm gonna go hide, even if i'm really close to the can
+
+
+	if(agt.getInvTimer().getTime()>0){
+	
+		agt.flavorText->setText( stringw( agt.getInvTimer().getTime()/1000).c_str());
+	
+	}
+
 
 	if(!agt.isSafe()){
 		agt.GetFSM()->ChangeState(Hide::GetInstance());

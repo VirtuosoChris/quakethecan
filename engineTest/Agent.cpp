@@ -272,7 +272,7 @@ Agent::Agent(Model m, irr::core::vector3df sp, Timer tim, Timer inv, GamePlayer_
 	smgr= mgr;
 	
 	
-	irr::scene::IBillboardTextSceneNode* a = 
+	irr::scene::IBillboardTextSceneNode* a = flavorText = 
  
     mgr->addBillboardTextSceneNode(0,stringw("I'm it!").c_str() );
 		
