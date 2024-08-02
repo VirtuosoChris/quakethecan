@@ -437,7 +437,8 @@ std::vector<int>* mapGraph::depthFirstSearch(unsigned int src){
 
 
 //returns a mapgraph representing the minimum spanning tree 
-mapGraph* mapGraph::minimumSpanningTree(int src){
+mapGraph* mapGraph::minimumSpanningTree(int src)
+{
 	bool* visitedArray = new bool[NODE_VECTOR.size()];
 	std::list<int>::const_iterator iter;
 	
@@ -478,7 +479,9 @@ mapGraph* mapGraph::minimumSpanningTree(int src){
 	}
 
 
-	int src=-1, tgt=-1;
+//	int // redefinition.  assuming we just overwrite here.
+	src = -1;
+	int tgt = -1;
 	double shortest;
 	//then look at each node in the graph, and look at its edges going to an unvisited node.  add in the edge not 
 	while(visitedCount < NODE_VECTOR.size()){//loop until all the nodes in the graph are in the minimum spanning tree.
@@ -487,7 +490,8 @@ mapGraph* mapGraph::minimumSpanningTree(int src){
 		tgt = -1;
 
 		//look at each visited node in the graph
-		for(int i = 0; i < NODE_VECTOR.size();i++){
+		for(int i = 0; i < NODE_VECTOR.size();i++)
+		{
 			if(!visitedArray[i])
 				continue;
 			if(possibleEdges[i].empty())
